@@ -18,7 +18,7 @@ $statistics = $appointmentController->getStatistics();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -122,6 +122,7 @@ $statistics = $appointmentController->getStatistics();
             </div>
         </main>
     </div>
+    <script src="<?php echo SITE_URL; ?>/assets/js/script.js?v=<?php echo time(); ?>"></script>
 </body>
 
 </html>

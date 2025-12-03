@@ -21,6 +21,7 @@ class User
     public $middle_name;
     public $phone;
     public $address;
+    public $profile_picture;
     public $role;
     public $is_active;
 
@@ -83,7 +84,7 @@ class User
     public function readOne()
     {
         $query = "SELECT id, username, email, first_name, last_name, middle_name, 
-                  phone, address, role, is_active, created_at 
+                  phone, address, profile_picture, role, is_active, created_at 
                   FROM " . $this->table . " 
                   WHERE id = ? LIMIT 0,1";
 
@@ -99,6 +100,7 @@ class User
             $this->first_name = $row['first_name'];
             $this->last_name = $row['last_name'];
             $this->middle_name = $row['middle_name'];
+            $this->profile_picture = $row['profile_picture'];
             $this->phone = $row['phone'];
             $this->address = $row['address'];
             $this->role = $row['role'];

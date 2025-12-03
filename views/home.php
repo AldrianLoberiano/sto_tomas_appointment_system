@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ . '/../config/config.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -20,8 +23,8 @@
                 <a href="#about">About</a>
                 <a href="#services">Services</a>
                 <a href="#contact">Contact</a>
-                <a href="<?php echo SITE_URL; ?>/views/login.php" class="btn btn-login">Login</a>
-                <a href="<?php echo SITE_URL; ?>/views/register.php" class="btn btn-register">Register</a>
+                <a href="#" class="btn btn-login" onclick="openLoginModal(); return false;">Login</a>
+                <a href="#" class="btn btn-register" onclick="openRegisterModal(); return false;">Register</a>
             </nav>
         </div>
     </header>
@@ -33,7 +36,7 @@
             <p class="hero-subtitle">Your Partner in Community Development and Service</p>
             <p class="hero-description">Book appointments online for barangay services quickly and conveniently</p>
             <div class="hero-buttons">
-                <a href="<?php echo SITE_URL; ?>/views/register.php" class="btn btn-primary btn-lg">Get Started</a>
+                <a href="#" class="btn btn-primary btn-lg" onclick="openAppointmentModal(); return false;">Book Appointment</a>
                 <a href="#services" class="btn btn-secondary btn-lg">Learn More</a>
             </div>
         </div>
@@ -218,7 +221,293 @@
         </div>
     </footer>
 
-    <script src="<?php echo SITE_URL; ?>/assets/js/script.js"></script>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Barangay Appointment System</h2>
+                <h3>Login</h3>
+            </div>
+
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-error">
+                    <?php
+                    echo $_SESSION['error'];
+                    unset($_SESSION['error']);
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_SESSION['success'])): ?>
+                <div class="alert alert-success">
+                    <?php
+                    echo $_SESSION['success'];
+                    unset($_SESSION['success']);
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <form action="<?php echo SITE_URL; ?>/controllers/AuthController.php?action=login" method="POST">
+                <div class="form-group">
+                    <label for="username">Username or Email</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+
+            <div class="modal-footer">
+                <p>Don't have an account? <a href="#" onclick="closeLoginModal(); openRegisterModal(); return false;">Register here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointment Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content modal-content-large">
+            <span class="close" onclick="closeAppointmentModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Book an Appointment</h2>
+                <h3>Schedule your visit to the barangay</h3>
+            </div>
+
+            <div class="alert alert-error" id="appointmentError" style="display: none; margin: 20px 40px;"></div>
+
+            <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=create" method="POST" id="appointmentForm">
+                <div class="form-group">
+                    <label for="service_id">Service *</label>
+                    <select id="service_id" name="service_id" required>
+                        <option value="">Select a service</option>
+                        <?php
+                        require_once __DIR__ . '/../config/database.php';
+                        require_once __DIR__ . '/../models/Service.php';
+
+                        $database = new Database();
+                        $db = $database->getConnection();
+                        $service = new Service($db);
+                        $services = $service->readActive();
+
+                        while ($row = $services->fetch(PDO::FETCH_ASSOC)) {
+                            echo "<option value='{$row['id']}' data-fee='{$row['fee']}'>{$row['service_name']} - ₱" . number_format($row['fee'], 2) . "</option>";
+                        }
+                        ?>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="appointment_date">Appointment Date *</label>
+                        <input type="date" id="appointment_date" name="appointment_date" required
+                            min="<?php echo date('Y-m-d', strtotime('+1 day')); ?>"
+                            max="<?php echo date('Y-m-d', strtotime('+14 days')); ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="appointment_time">Appointment Time *</label>
+                        <input type="time" id="appointment_time" name="appointment_time" required
+                            min="08:00" max="17:00">
+                        <small>Office hours: 8:00 AM - 5:00 PM</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="purpose">Purpose *</label>
+                    <textarea id="purpose" name="purpose" rows="3" required placeholder="Please describe the purpose of your appointment"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" name="notes" rows="2" placeholder="Any additional information"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Book Appointment</button>
+            </form>
+
+            <div class="modal-footer">
+                <p>Please ensure you are logged in. <a href="#" onclick="closeAppointmentModal(); openLoginModal(); return false;">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content modal-content-large">
+            <span class="close" onclick="closeRegisterModal()">&times;</span>
+            <div class="modal-header">
+                <h2>Barangay Appointment System</h2>
+                <h3>Register</h3>
+            </div>
+
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-error">
+                    <?php
+                    echo $_SESSION['error'];
+                    unset($_SESSION['error']);
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <form action="<?php echo SITE_URL; ?>/controllers/AuthController.php?action=register" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">First Name *</label>
+                        <input type="text" id="first_name" name="first_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="middle_name">Middle Name</label>
+                        <input type="text" id="middle_name" name="middle_name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">Last Name *</label>
+                        <input type="text" id="last_name" name="last_name" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reg_username">Username *</label>
+                        <input type="text" id="reg_username" name="username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg_email">Email *</label>
+                        <input type="email" id="reg_email" name="email" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="reg_password">Password *</label>
+                        <input type="password" id="reg_password" name="password" required>
+                        <small>Minimum 6 characters</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password *</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone">
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <textarea id="address" name="address" rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+
+            <div class="modal-footer">
+                <p>Already have an account? <a href="#" onclick="closeRegisterModal(); openLoginModal(); return false;">Login here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="<?php echo SITE_URL; ?>/assets/js/script.js?v=<?php echo time(); ?>"></script>
+    <script>
+        // Modal functions
+        function openLoginModal() {
+            closeRegisterModal();
+            closeAppointmentModal();
+            document.getElementById('loginModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function openRegisterModal() {
+            closeLoginModal();
+            closeAppointmentModal();
+            document.getElementById('registerModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRegisterModal() {
+            document.getElementById('registerModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        function openAppointmentModal() {
+            closeLoginModal();
+            closeRegisterModal();
+            document.getElementById('appointmentModal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAppointmentModal() {
+            document.getElementById('appointmentModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const loginModal = document.getElementById('loginModal');
+            const registerModal = document.getElementById('registerModal');
+            const appointmentModal = document.getElementById('appointmentModal');
+
+            if (event.target == loginModal) {
+                closeLoginModal();
+            } else if (event.target == registerModal) {
+                closeRegisterModal();
+            } else if (event.target == appointmentModal) {
+                closeAppointmentModal();
+            }
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeLoginModal();
+                closeRegisterModal();
+                closeAppointmentModal();
+            }
+        });
+
+        // Form validation for appointment
+        document.getElementById('appointmentForm')?.addEventListener('submit', function(e) {
+            const serviceId = document.getElementById('service_id').value;
+            const appointmentDate = document.getElementById('appointment_date').value;
+            const appointmentTime = document.getElementById('appointment_time').value;
+            const purpose = document.getElementById('purpose').value;
+
+            if (!serviceId || !appointmentDate || !appointmentTime || !purpose.trim()) {
+                e.preventDefault();
+                document.getElementById('appointmentError').textContent = 'Please fill in all required fields';
+                document.getElementById('appointmentError').style.display = 'block';
+                return false;
+            }
+
+            // Check if user is logged in (basic check)
+            <?php if (!isset($_SESSION['user_id'])): ?>
+                e.preventDefault();
+                closeAppointmentModal();
+                openLoginModal();
+                return false;
+            <?php endif; ?>
+        });
+
+        <?php if (isset($_SESSION['error']) || isset($_SESSION['success'])): ?>
+            // Open modal if there are messages
+            window.addEventListener('DOMContentLoaded', function() {
+                openLoginModal();
+            });
+        <?php endif; ?>
+    </script>
 </body>
 
 </html>

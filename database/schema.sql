@@ -1,4 +1,4 @@
--- Barangay Appointment System Database Schema
+-- Barangay Sto. Tomas Appointment System Database Schema
 -- Create Database
 CREATE DATABASE IF NOT EXISTS barangay_appointment CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -15,6 +15,7 @@ CREATE TABLE users (
     middle_name VARCHAR(50),
     phone VARCHAR(20),
     address TEXT,
+    profile_picture VARCHAR(255) DEFAULT NULL,
     role ENUM('admin', 'staff', 'resident') DEFAULT 'resident',
     is_active TINYINT(1) DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -194,12 +195,12 @@ INSERT INTO
     )
 VALUES (
         'barangay_name',
-        'Barangay Sample',
+        'Barangay Sto. Tomas',
         'Name of the barangay'
     ),
     (
         'barangay_address',
-        'Sample Address, City, Province',
+        'Sto. Tomas, Philippines',
         'Complete address of the barangay'
     ),
     (
@@ -209,7 +210,7 @@ VALUES (
     ),
     (
         'email_address',
-        'barangay@example.com',
+        'barangay.stotomas@email.com',
         'Official email address'
     ),
     (
@@ -219,11 +220,11 @@ VALUES (
     ),
     (
         'max_appointments_per_day',
-        '20',
+        '50',
         'Maximum appointments per day'
     ),
     (
         'appointment_advance_days',
-        '7',
+        '14',
         'How many days in advance can appointments be made'
     );

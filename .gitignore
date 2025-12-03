@@ -6,3 +6,7 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+database/barangay_stotomas.sql
+database/schema.sql
+database/add_profile_picture.sql
+database/schema.sql

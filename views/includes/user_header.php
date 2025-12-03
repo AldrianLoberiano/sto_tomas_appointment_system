@@ -6,10 +6,20 @@
         <nav class="nav">
             <a href="<?php echo SITE_URL; ?>/views/user/dashboard.php">Dashboard</a>
             <a href="<?php echo SITE_URL; ?>/views/user/new_appointment.php">New Appointment</a>
-            <a href="<?php echo SITE_URL; ?>/views/user/profile.php">Profile</a>
+            <a href="<?php echo SITE_URL; ?>/views/user/profile.php" title="Profile">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </a>
             <div class="user-menu">
-                <span><?php echo $_SESSION['full_name']; ?></span>
-                <a href="<?php echo SITE_URL; ?>/controllers/AuthController.php?action=logout" class="btn btn-sm">Logout</a>
+                <a href="<?php echo SITE_URL; ?>/controllers/AuthController.php?action=logout" class="btn btn-sm" title="Logout">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </a>
             </div>
         </nav>
     </div>
