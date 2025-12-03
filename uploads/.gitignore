@@ -1,0 +1,10 @@
+# Ignore uploaded files
+*.jpg
+*.jpeg
+*.png
+*.pdf
+*.doc
+*.docx
+
+# Keep the README
+!README.md
