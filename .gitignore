@@ -10,3 +10,4 @@ database/barangay_stotomas.sql
 database/schema.sql
 database/add_profile_picture.sql
 database/schema.sql
+database/add_payment_proof.sql

@@ -100,7 +100,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
         <main class="content">
             <div class="page-header">
-                <h1>💳 Payment Management</h1>
+                <h1>Payment Management</h1>
                 <p>Track and manage appointment payments</p>
             </div>
 
@@ -131,10 +131,10 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
             <!-- Filters -->
             <div class="filter-section">
-                <form method="GET" action="" class="filter-form">
+                <form method="GET" action="" class="filter-form" id="filterForm">
                     <div class="filter-group">
                         <label for="status">Appointment Status:</label>
-                        <select name="status" id="status">
+                        <select name="status" id="status" onchange="document.getElementById('filterForm').submit()">
                             <option value="all" <?php echo $filter_status === 'all' ? 'selected' : ''; ?>>All Status</option>
                             <option value="pending" <?php echo $filter_status === 'pending' ? 'selected' : ''; ?>>Pending</option>
                             <option value="approved" <?php echo $filter_status === 'approved' ? 'selected' : ''; ?>>Approved</option>
@@ -143,14 +143,13 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                     </div>
                     <div class="filter-group">
                         <label for="payment">Payment Status:</label>
-                        <select name="payment" id="payment">
+                        <select name="payment" id="payment" onchange="document.getElementById('filterForm').submit()">
                             <option value="all" <?php echo $filter_payment === 'all' ? 'selected' : ''; ?>>All Payments</option>
                             <option value="paid" <?php echo $filter_payment === 'paid' ? 'selected' : ''; ?>>Paid</option>
                             <option value="pending" <?php echo $filter_payment === 'pending' ? 'selected' : ''; ?>>Payment Due</option>
                             <option value="waiting" <?php echo $filter_payment === 'waiting' ? 'selected' : ''; ?>>Awaiting Approval</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary">Filter</button>
                     <a href="payments.php" class="btn">Reset</a>
                 </form>
             </div>

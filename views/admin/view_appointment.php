@@ -181,6 +181,41 @@ if (!$appointment) {
                         </div>
                     </div>
 
+                    <!-- Payment Proof -->
+                    <div class="details-card">
+                        <h3>💳 Payment Proof</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item full-width">
+                                <?php if (!empty($appointment['payment_proof'])): ?>
+                                    <div class="payment-proof-container">
+                                        <label>Uploaded Payment Proof:</label>
+                                        <div class="payment-proof-image">
+                                            <img src="<?php echo SITE_URL; ?>/<?php echo htmlspecialchars($appointment['payment_proof']); ?>"
+                                                alt="Payment Proof"
+                                                onclick="openImageModal(this.src)">
+                                            <div class="payment-proof-info">
+                                                <p><strong>Uploaded on:</strong> <?php echo !empty($appointment['payment_proof_uploaded_at']) ? date('M d, Y h:i A', strtotime($appointment['payment_proof_uploaded_at'])) : 'N/A'; ?></p>
+                                                <div class="payment-proof-actions">
+                                                    <a href="<?php echo SITE_URL; ?>/<?php echo htmlspecialchars($appointment['payment_proof']); ?>"
+                                                        target="_blank"
+                                                        class="btn btn-sm btn-info">👁️ View Full Size</a>
+                                                    <a href="<?php echo SITE_URL; ?>/<?php echo htmlspecialchars($appointment['payment_proof']); ?>"
+                                                        download
+                                                        class="btn btn-sm btn-primary">⬇️ Download</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php else: ?>
+                                    <p class="text-muted">
+                                        <span class="no-payment-icon">📄</span>
+                                        No payment proof uploaded yet
+                                    </p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Timestamps -->
                     <div class="details-card">
                         <h3>⏰ Timestamps</h3>
@@ -296,6 +331,12 @@ if (!$appointment) {
         </div>
     </div>
 
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal image-modal">
+        <span class="close" onclick="closeImageModal()">&times;</span>
+        <img class="modal-image-content" id="modalImage">
+    </div>
+
     <!-- Hidden Forms -->
     <form id="statusForm" method="POST" action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=update_status" style="display: none;">
         <input type="hidden" name="appointment_id" id="status_appointment_id">
@@ -329,6 +370,17 @@ if (!$appointment) {
 
         function closeQueueModal() {
             document.getElementById('queueModal').style.display = 'none';
+        }
+
+        function openImageModal(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imageSrc;
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
         }
 
         function updateStatus(appointmentId, status) {
@@ -575,6 +627,107 @@ if (!$appointment) {
             }
         }
 
+        /* Payment Proof Styles */
+        .payment-proof-container {
+            width: 100%;
+        }
+
+        .payment-proof-image {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-top: 10px;
+        }
+
+        .payment-proof-image img {
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            border: 3px solid #e0e0e0;
+            cursor: pointer;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .payment-proof-image img:hover {
+            transform: scale(1.05);
+            border-color: #3498db;
+        }
+
+        .payment-proof-info {
+            flex: 1;
+        }
+
+        .payment-proof-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .no-payment-icon {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Image Modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            padding-top: 50px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .image-modal .close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: #f1f1f1;
+            font-size: 40px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .image-modal .close:hover,
+        .image-modal .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-image-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 80vh;
+            animation: zoom 0.3s;
+        }
+
+        @keyframes zoom {
+            from {
+                transform: scale(0);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .payment-proof-image {
+                flex-direction: column;
+            }
+
+            .payment-proof-image img {
+                max-width: 100%;
+            }
+        }
+
         @media print {
             body * {
                 visibility: hidden;
@@ -595,6 +748,10 @@ if (!$appointment) {
             .details-card {
                 box-shadow: none;
                 border: 1px solid #ddd;
+            }
+
+            .payment-proof-image img {
+                max-width: 200px;
             }
         }
     </style>

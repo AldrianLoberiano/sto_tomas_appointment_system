@@ -20,8 +20,8 @@ require_once __DIR__ . '/../config/config.php';
                 <h1>🏛️ Barangay Sto. Tomas</h1>
             </div>
             <nav class="home-nav">
-                <a href="#about">About</a>
                 <a href="#services">Services</a>
+                <a href="#about">About</a>
                 <a href="#contact">Contact</a>
                 <a href="#" class="btn btn-login" onclick="openLoginModal(); return false;">Login</a>
                 <a href="#" class="btn btn-register" onclick="openRegisterModal(); return false;">Register</a>
@@ -88,6 +88,39 @@ require_once __DIR__ . '/../config/config.php';
         </div>
     </section>
 
+        <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2 class="section-title">About Us</h2>
+                    <p>Barangay Sto. Tomas is committed to providing efficient and accessible services to all residents. Our online appointment system is designed to make it easier for you to access barangay services without the hassle of long queues and waiting times.</p>
+                    <p>We strive to serve our community with integrity, transparency, and dedication. Our goal is to make barangay services more convenient and accessible to everyone.</p>
+                    <div class="about-stats">
+                        <div class="stat">
+                            <h3>1000+</h3>
+                            <p>Residents Served</p>
+                        </div>
+                        <div class="stat">
+                            <h3>50+</h3>
+                            <p>Daily Appointments</p>
+                        </div>
+                        <div class="stat">
+                            <h3>24/7</h3>
+                            <p>Online Booking</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div class="image-placeholder">
+                        <span>🏛️</span>
+                        <p>Barangay Hall</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- How It Works Section -->
     <section class="how-it-works">
         <div class="container">
@@ -117,39 +150,6 @@ require_once __DIR__ . '/../config/config.php';
                     <div class="step-number">4</div>
                     <h3>Visit Barangay</h3>
                     <p>Come to the barangay hall on your scheduled appointment</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about-section">
-        <div class="container">
-            <div class="about-content">
-                <div class="about-text">
-                    <h2 class="section-title">About Us</h2>
-                    <p>Barangay Sto. Tomas is committed to providing efficient and accessible services to all residents. Our online appointment system is designed to make it easier for you to access barangay services without the hassle of long queues and waiting times.</p>
-                    <p>We strive to serve our community with integrity, transparency, and dedication. Our goal is to make barangay services more convenient and accessible to everyone.</p>
-                    <div class="about-stats">
-                        <div class="stat">
-                            <h3>1000+</h3>
-                            <p>Residents Served</p>
-                        </div>
-                        <div class="stat">
-                            <h3>50+</h3>
-                            <p>Daily Appointments</p>
-                        </div>
-                        <div class="stat">
-                            <h3>24/7</h3>
-                            <p>Online Booking</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="about-image">
-                    <div class="image-placeholder">
-                        <span>🏛️</span>
-                        <p>Barangay Hall</p>
-                    </div>
                 </div>
             </div>
         </div>

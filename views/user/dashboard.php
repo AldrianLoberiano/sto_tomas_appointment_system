@@ -83,7 +83,11 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
                                     <td>
                                         <a href="view_appointment.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info">View</a>
                                         <?php if ($row['fee'] > 0 && $row['status'] == 'approved'): ?>
-                                            <button onclick="openPaymentModal(<?php echo $row['id']; ?>, <?php echo $row['fee']; ?>, '<?php echo addslashes($row['service_name']); ?>')" class="btn btn-sm btn-success">💳 Pay</button>
+                                            <?php if (empty($row['payment_proof'])): ?>
+                                                <button onclick="openUploadProofModal(<?php echo $row['id']; ?>, '<?php echo addslashes($row['service_name']); ?>', <?php echo $row['fee']; ?>)" class="btn btn-sm btn-success">📤 Upload Proof</button>
+                                            <?php else: ?>
+                                                <span class="badge badge-completed" style="font-size: 0.8em;">✓ Proof Uploaded</span>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                         <?php if ($row['status'] == 'pending'): ?>
                                             <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=cancel" method="POST" style="display:inline;">
@@ -205,6 +209,74 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
                         <span id="submit_button_text">Confirm Payment</span>
                     </button>
                     <button type="button" onclick="closePaymentDetailsModal()" class="btn" style="width: 100%; margin-top: 10px;">Back</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Payment Proof Modal -->
+    <div id="uploadProofModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeUploadProofModal()">&times;</span>
+            <h2>📤 Upload Payment Proof</h2>
+
+            <div class="payment-summary">
+                <h3>Appointment Details</h3>
+                <div class="summary-item">
+                    <span>Appointment ID:</span>
+                    <strong id="proof_appointment_id_display"></strong>
+                </div>
+                <div class="summary-item">
+                    <span>Service:</span>
+                    <strong id="proof_service"></strong>
+                </div>
+                <div class="summary-item">
+                    <span>Amount:</span>
+                    <strong id="proof_amount_display" style="color: #27ae60; font-size: 1.3em;"></strong>
+                </div>
+            </div>
+
+            <form id="uploadProofForm" method="POST" action="<?php echo SITE_URL; ?>/controllers/upload_payment_proof.php" enctype="multipart/form-data">
+                <input type="hidden" id="proof_appointment_id" name="appointment_id">
+
+                <div class="upload-instructions">
+                    <h4>📋 Instructions:</h4>
+                    <ul>
+                        <li>Upload a clear photo or screenshot of your payment receipt</li>
+                        <li>Accepted formats: JPG, JPEG, PNG, PDF</li>
+                        <li>Maximum file size: 5MB</li>
+                        <li>Make sure payment details are visible</li>
+                    </ul>
+                </div>
+
+                <div class="form-group">
+                    <label for="payment_proof_file">Select Payment Proof Image *</label>
+                    <input type="file"
+                        id="payment_proof_file"
+                        name="payment_proof"
+                        accept="image/jpeg,image/jpg,image/png,application/pdf"
+                        required
+                        onchange="previewProofImage(event)">
+                    <small style="color: #7f8c8d; display: block; margin-top: 5px;">
+                        Supported formats: JPG, PNG, PDF (Max: 5MB)
+                    </small>
+                </div>
+
+                <div id="proof_preview" class="proof-preview" style="display:none;">
+                    <h4>Preview:</h4>
+                    <img id="proof_preview_img" src="" alt="Payment Proof Preview">
+                </div>
+
+                <div class="form-group">
+                    <label for="proof_notes">Additional Notes (Optional)</label>
+                    <textarea id="proof_notes" name="notes" rows="3" placeholder="e.g., Reference number, payment date, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        📤 Upload Payment Proof
+                    </button>
+                    <button type="button" onclick="closeUploadProofModal()" class="btn" style="width: 100%; margin-top: 10px;">Cancel</button>
                 </div>
             </form>
         </div>
@@ -359,6 +431,58 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
             document.getElementById('paymentForm').reset();
         }
 
+        // Upload Proof Modal Functions
+        function openUploadProofModal(appointmentId, serviceName, amount) {
+            document.getElementById('proof_appointment_id').value = appointmentId;
+            document.getElementById('proof_appointment_id_display').textContent = '#' + appointmentId;
+            document.getElementById('proof_service').textContent = serviceName;
+            document.getElementById('proof_amount_display').textContent = '₱' + parseFloat(amount).toFixed(2);
+            document.getElementById('uploadProofModal').style.display = 'block';
+        }
+
+        function closeUploadProofModal() {
+            document.getElementById('uploadProofModal').style.display = 'none';
+            document.getElementById('uploadProofForm').reset();
+            document.getElementById('proof_preview').style.display = 'none';
+        }
+
+        function previewProofImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('proof_preview');
+            const previewImg = document.getElementById('proof_preview_img');
+
+            if (file) {
+                // Check file size (5MB)
+                if (file.size > 5242880) {
+                    alert('File size must be less than 5MB.');
+                    event.target.value = '';
+                    preview.style.display = 'none';
+                    return;
+                }
+
+                // Check file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please upload a JPG, PNG, or PDF file.');
+                    event.target.value = '';
+                    preview.style.display = 'none';
+                    return;
+                }
+
+                // Show preview for images only
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.style.display = 'none';
+                }
+            }
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             if (event.target.id === 'paymentModal') {
@@ -366,6 +490,9 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
             }
             if (event.target.id === 'paymentDetailsModal') {
                 closePaymentDetailsModal();
+            }
+            if (event.target.id === 'uploadProofModal') {
+                closeUploadProofModal();
             }
         }
 
@@ -393,6 +520,39 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
 
             return confirm('Submit payment information?');
         });
+
+        // Upload Proof Form Validation
+        document.getElementById('uploadProofForm').addEventListener('submit', function(e) {
+            const file = document.getElementById('payment_proof_file').files[0];
+
+            if (!file) {
+                e.preventDefault();
+                alert('Please select a payment proof image.');
+                return false;
+            }
+
+            if (file.size > 5242880) {
+                e.preventDefault();
+                alert('File size must be less than 5MB.');
+                return false;
+            }
+
+            return confirm('Upload this payment proof?');
+        });
+
+        // Auto-refresh dashboard every 30 seconds
+        setInterval(function() {
+            location.reload();
+        }, 30000); // 30000 milliseconds = 30 seconds
+
+        // Optional: Add visual indicator for next refresh
+        let countdown = 30;
+        setInterval(function() {
+            countdown--;
+            if (countdown <= 0) {
+                countdown = 30;
+            }
+        }, 1000);
     </script>
 
     <style>
@@ -548,6 +708,68 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
             color: #000;
         }
 
+        /* Upload Proof Modal Styles */
+        .upload-instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .upload-instructions h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .upload-instructions ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .upload-instructions li {
+            margin: 8px 0;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .proof-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .proof-preview h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+        }
+
+        .proof-preview img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: 2px dashed #3498db;
+            border-radius: 8px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        input[type="file"]:hover {
+            background: #e3f2fd;
+            border-color: #2980b9;
+        }
+
         @media (max-width: 768px) {
             .payment-method-card {
                 padding: 15px;
@@ -562,6 +784,10 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
                 width: 95%;
                 margin: 10px auto;
                 padding: 20px;
+            }
+
+            .proof-preview img {
+                max-height: 200px;
             }
         }
     </style>
