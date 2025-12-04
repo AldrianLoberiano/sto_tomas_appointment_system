@@ -336,6 +336,58 @@ $services = $service->read();
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Hover Effects */
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-sm:hover {
+            transform: translateY(-2px) scale(1.05);
+        }
+
+        /* Table row hover */
+        .table-container table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table-container table tbody tr:hover {
+            background: #ecf0f1;
+            transform: translateX(3px);
+            cursor: pointer;
+        }
+
+        /* Badge hover */
+        .badge {
+            transition: all 0.2s ease;
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Modal close button hover */
+        .close {
+            transition: all 0.2s ease;
+        }
+
+        .close:hover {
+            transform: rotate(90deg);
+            color: #e74c3c;
+        }
+
+        /* Input focus enhancement */
+        .form-group input:hover,
+        .form-group select:hover,
+        .form-group textarea:hover {
+            border-color: #95a5a6;
+        }
     </style>
     <script src="<?php echo SITE_URL; ?>/assets/js/script.js"></script>
 </body>

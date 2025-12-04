@@ -382,6 +382,69 @@ if ($hour < 12) {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
+        /* Hover Effects */
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Table row hover */
+        .table-container table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table-container table tbody tr:hover {
+            background: #ecf0f1;
+            transform: translateX(3px);
+            cursor: pointer;
+        }
+
+        /* Badge hover */
+        .badge {
+            transition: all 0.2s ease;
+        }
+
+        .badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Action buttons hover */
+        .action-buttons .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Link hover */
+        a {
+            transition: all 0.2s ease;
+        }
+
+        a:hover {
+            opacity: 0.8;
+        }
+
+        /* Stat card enhanced hover */
+        .stat-card:hover .stat-icon-wrapper {
+            transform: rotate(5deg) scale(1.1);
+        }
+
+        .stat-card:hover .stat-number {
+            transform: scale(1.05);
+        }
+
+        .stat-icon-wrapper {
+            transition: all 0.3s ease;
+        }
+
+        .stat-number {
+            transition: all 0.3s ease;
+        }
     </style>
 </body>
 
