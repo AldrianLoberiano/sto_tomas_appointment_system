@@ -71,7 +71,7 @@ $users = $user->read();
                     <table id="appointmentsTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Queue #</th>
                                 <th>Resident</th>
                                 <th>Service</th>
                                 <th>Date</th>
@@ -86,7 +86,15 @@ $users = $user->read();
                             while ($row = $appointments->fetch(PDO::FETCH_ASSOC)):
                             ?>
                                 <tr>
-                                    <td><?php echo $row['id']; ?></td>
+                                    <td>
+                                        <?php if (!empty($row['queue_number'])): ?>
+                                            <span class="badge badge-info" style="font-size: 1em; padding: 8px 12px;">
+                                                <?php echo $row['queue_number']; ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="color: #95a5a6;">Not Assigned</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?php echo $row['first_name'] . ' ' . $row['last_name']; ?></td>
                                     <td><?php echo $row['service_name']; ?></td>
                                     <td><?php echo date('M d, Y', strtotime($row['appointment_date'])); ?></td>

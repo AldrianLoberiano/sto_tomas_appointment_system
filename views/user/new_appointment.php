@@ -112,6 +112,63 @@ $services = $service->readActive();
                             placeholder="Any additional information you'd like to provide"></textarea>
                     </div>
 
+                    <!-- Payment Section -->
+                    <div id="paymentSection" class="payment-section" style="display: none;">
+                        <h3>💳 Payment Information</h3>
+                        <div class="payment-info-box">
+                            <div class="payment-summary">
+                                <div class="summary-row">
+                                    <span>Service Fee:</span>
+                                    <strong id="displayFee" style="color: #27ae60; font-size: 1.3em;">₱0.00</strong>
+                                </div>
+                            </div>
+
+                            <div class="payment-option">
+                                <input type="checkbox" id="payNow" name="pay_now" value="1">
+                                <label for="payNow" style="margin-left: 10px;">
+                                    <strong>Select payment method</strong>
+                                    <br>
+                                    <small style="color: #7f8c8d;">Choose how you will pay for this service</small>
+                                </label>
+                            </div>
+
+                            <div id="paymentMethodSection" style="display: none; margin-top: 20px;">
+                                <h4>Select Payment Method</h4>
+                                <div class="payment-methods-grid">
+                                    <div class="payment-method-option" data-method="gcash">
+                                        <div class="method-icon">📱</div>
+                                        <div class="method-name">GCash</div>
+                                        <small style="color: #7f8c8d; font-size: 0.85em;">Upload proof required</small>
+                                    </div>
+                                    <div class="payment-method-option" data-method="cash">
+                                        <div class="method-icon">💵</div>
+                                        <div class="method-name">Cash at Office</div>
+                                        <small style="color: #7f8c8d; font-size: 0.85em;">No upload needed</small>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="payment_method" name="payment_method" value="">
+
+                                <div id="gcashDetails" style="display: none; margin-top: 15px; padding: 15px; background: #e3f2fd; border-radius: 8px;">
+                                    <h4>📱 GCash Payment Details</h4>
+                                    <p><strong>GCash Number:</strong> 0912-345-6789</p>
+                                    <p><strong>Account Name:</strong> Barangay Sto. Tomas</p>
+                                    <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 6px; border-left: 4px solid #ffc107;">
+                                        <p style="margin: 0; color: #856404;"><strong>⚠️ Important:</strong> After sending payment via GCash, you must upload your payment proof/screenshot in the dashboard to complete your payment.</p>
+                                    </div>
+                                </div>
+
+                                <div id="cashDetails" style="display: none; margin-top: 15px; padding: 15px; background: #d4edda; border-radius: 8px;">
+                                    <h4>💵 Cash Payment at Office</h4>
+                                    <p><strong>Office:</strong> Barangay Sto. Tomas Hall</p>
+                                    <p><strong>Hours:</strong> Monday-Friday, 8:00 AM - 5:00 PM</p>
+                                    <div style="margin-top: 15px; padding: 10px; background: #fff; border-radius: 6px; border-left: 4px solid #28a745;">
+                                        <p style="margin: 0; color: #155724;"><strong>✓ No Payment Proof Required:</strong> Simply bring your appointment confirmation and pay at the office. No need to upload any payment proof.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary">📅 Book Appointment</button>
                         <a href="dashboard.php" class="btn" style="background-color: #95a5a6; color: white; margin-left: 10px;">Cancel</a>
@@ -250,16 +307,61 @@ $services = $service->readActive();
         document.getElementById('service_id').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const serviceInfo = document.getElementById('serviceInfo');
+            const paymentSection = document.getElementById('paymentSection');
 
             if (selectedOption.value) {
+                const fee = parseFloat(selectedOption.getAttribute('data-fee'));
                 document.getElementById('serviceDescription').textContent = selectedOption.getAttribute('data-description');
                 document.getElementById('serviceRequirements').textContent = selectedOption.getAttribute('data-requirements');
                 document.getElementById('serviceProcessing').textContent = selectedOption.getAttribute('data-processing');
-                document.getElementById('serviceFee').textContent = '₱' + parseFloat(selectedOption.getAttribute('data-fee')).toFixed(2);
+                document.getElementById('serviceFee').textContent = '₱' + fee.toFixed(2);
                 serviceInfo.style.display = 'block';
+
+                // Show payment section if service has a fee
+                if (fee > 0) {
+                    document.getElementById('displayFee').textContent = '₱' + fee.toFixed(2);
+                    paymentSection.style.display = 'block';
+                } else {
+                    paymentSection.style.display = 'none';
+                    document.getElementById('payNow').checked = false;
+                    document.getElementById('paymentMethodSection').style.display = 'none';
+                }
             } else {
                 serviceInfo.style.display = 'none';
+                paymentSection.style.display = 'none';
             }
+        });
+
+        // Pay Now checkbox handler
+        document.getElementById('payNow').addEventListener('change', function() {
+            const paymentMethodSection = document.getElementById('paymentMethodSection');
+            if (this.checked) {
+                paymentMethodSection.style.display = 'block';
+            } else {
+                paymentMethodSection.style.display = 'none';
+                document.getElementById('payment_method').value = '';
+                document.querySelectorAll('.payment-method-option').forEach(el => el.classList.remove('selected'));
+                document.getElementById('gcashDetails').style.display = 'none';
+                document.getElementById('cashDetails').style.display = 'none';
+            }
+        });
+
+        // Payment method selection
+        document.querySelectorAll('.payment-method-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const method = this.dataset.method;
+
+                // Remove previous selection
+                document.querySelectorAll('.payment-method-option').forEach(el => el.classList.remove('selected'));
+                this.classList.add('selected');
+
+                // Set payment method
+                document.getElementById('payment_method').value = method;
+
+                // Show method details
+                document.getElementById('gcashDetails').style.display = method === 'gcash' ? 'block' : 'none';
+                document.getElementById('cashDetails').style.display = method === 'cash' ? 'block' : 'none';
+            });
         });
 
         // Form validation
@@ -556,6 +658,134 @@ $services = $service->readActive();
 
             .calendar-day {
                 font-size: 14px;
+            }
+        }
+
+        /* Payment Section Styles */
+        .payment-section {
+            margin: 30px 0;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 2px solid #3498db;
+        }
+
+        .payment-section h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.3em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .payment-info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .payment-summary {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 1.1em;
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .payment-option input[type="checkbox"] {
+            margin-top: 3px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .payment-option label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        #paymentMethodSection h4 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+
+        .payment-methods-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .payment-method-option {
+            padding: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .payment-method-option:hover {
+            border-color: #3498db;
+            background: #e3f2fd;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .payment-method-option.selected {
+            border-color: #27ae60;
+            background: #e8f5e9;
+            box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+        }
+
+        .method-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .method-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        #gcashDetails h4,
+        #cashDetails h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1em;
+        }
+
+        #gcashDetails p,
+        #cashDetails p {
+            margin: 5px 0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .payment-methods-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-section {
+                padding: 15px;
             }
         }
     </style>

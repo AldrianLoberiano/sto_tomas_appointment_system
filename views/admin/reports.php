@@ -293,7 +293,7 @@ $services = $service->read();
                     <div class="filter-row">
                         <div class="filter-group">
                             <label for="period">Time Period</label>
-                            <select name="period" id="period" onchange="toggleCustomDate()">
+                            <select name="period" id="period" onchange="toggleCustomDate(); autoSubmitForm();">
                                 <option value="today" <?php echo $filter_period === 'today' ? 'selected' : ''; ?>>Today</option>
                                 <option value="this_week" <?php echo $filter_period === 'this_week' ? 'selected' : ''; ?>>This Week</option>
                                 <option value="this_month" <?php echo $filter_period === 'this_month' ? 'selected' : ''; ?>>This Month</option>
@@ -314,7 +314,7 @@ $services = $service->read();
 
                         <div class="filter-group">
                             <label for="service">Service</label>
-                            <select name="service" id="service">
+                            <select name="service" id="service" onchange="autoSubmitForm();">
                                 <option value="all">All Services</option>
                                 <?php while ($row = $services->fetch(PDO::FETCH_ASSOC)): ?>
                                     <option value="<?php echo $row['id']; ?>" <?php echo $filter_service == $row['id'] ? 'selected' : ''; ?>>
@@ -326,7 +326,7 @@ $services = $service->read();
 
                         <div class="filter-group">
                             <label for="status">Status</label>
-                            <select name="status" id="status">
+                            <select name="status" id="status" onchange="autoSubmitForm();">
                                 <option value="all">All Status</option>
                                 <option value="pending" <?php echo $filter_status === 'pending' ? 'selected' : ''; ?>>Pending</option>
                                 <option value="approved" <?php echo $filter_status === 'approved' ? 'selected' : ''; ?>>Approved</option>
@@ -337,8 +337,7 @@ $services = $service->read();
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Generate Report</button>
-                    <button type="button" class="btn" onclick="window.print()">🖨️ Print Report</button>
+                    <button type="button" class="btn" onclick="window.print()" style="margin-top: 15px;">🖨️ Print Report</button>
                 </form>
             </div>
 
@@ -487,6 +486,24 @@ $services = $service->read();
                 endDateGroup.style.display = 'none';
             }
         }
+
+        function autoSubmitForm() {
+            const form = document.querySelector('.filter-section form');
+            form.submit();
+        }
+
+        // Add onchange event to date inputs for auto-submit
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDate = document.getElementById('start_date');
+            const endDate = document.getElementById('end_date');
+
+            if (startDate) {
+                startDate.addEventListener('change', autoSubmitForm);
+            }
+            if (endDate) {
+                endDate.addEventListener('change', autoSubmitForm);
+            }
+        });
 
         // Prepare data for charts
         const serviceData = {

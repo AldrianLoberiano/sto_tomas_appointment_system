@@ -229,6 +229,7 @@ if (!$appointment || $appointment['user_id'] != $_SESSION['user_id']) {
                     <!-- Action Buttons -->
                     <div class="action-buttons-container">
                         <a href="dashboard.php" class="btn btn-secondary">← Back to Dashboard</a>
+                        <button onclick="downloadReceipt()" class="btn btn-primary">📥 Download Receipt</button>
 
                         <?php if ($appointment['status'] == 'pending'): ?>
                             <button onclick="confirmCancel(<?php echo $appointment['id']; ?>)" class="btn btn-danger">Cancel Appointment</button>
@@ -237,8 +238,6 @@ if (!$appointment || $appointment['user_id'] != $_SESSION['user_id']) {
                         <?php if ($appointment['fee'] > 0 && $appointment['status'] == 'approved'): ?>
                             <button onclick="openPaymentModal(<?php echo $appointment['id']; ?>, <?php echo $appointment['fee']; ?>, '<?php echo addslashes($appointment['service_name']); ?>')" class="btn btn-success">💳 Make Payment</button>
                         <?php endif; ?>
-
-                        <button onclick="window.print()" class="btn btn-info">🖨️ Print</button>
                     </div>
                 </div>
             </div>
@@ -273,6 +272,250 @@ if (!$appointment || $appointment['user_id'] != $_SESSION['user_id']) {
                 document.getElementById('cancel_appointment_id').value = appointmentId;
                 document.getElementById('cancelForm').submit();
             }
+        }
+
+        function downloadReceipt() {
+            // Create receipt HTML content
+            const receiptHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Receipt - #<?php echo str_pad($appointment['id'], 6, '0', STR_PAD_LEFT); ?></title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            padding: 20px; 
+            background: #fff; 
+            color: #333; 
+            max-width: 600px; 
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .receipt-header { 
+            text-align: center; 
+            padding-bottom: 20px; 
+            border-bottom: 3px double #333;
+            margin-bottom: 20px;
+        }
+        .receipt-header h1 { 
+            font-size: 24px; 
+            color: #2c3e50; 
+            margin-bottom: 8px;
+        }
+        .receipt-header .site-name { 
+            font-size: 18px;
+            color: #7f8c8d; 
+            font-weight: 600;
+        }
+        .receipt-header .date { 
+            font-size: 14px; 
+            color: #95a5a6;
+            margin-top: 8px;
+        }
+        .receipt-section { 
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .receipt-section h2 { 
+            font-size: 16px; 
+            color: #2c3e50;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3498db;
+        }
+        .receipt-row { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 8px 0;
+            border-bottom: 1px dotted #ddd;
+        }
+        .receipt-row:last-child { border-bottom: none; }
+        .receipt-label { 
+            font-weight: 600; 
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .receipt-value { 
+            color: #2c3e50;
+            font-weight: 500;
+            text-align: right;
+            font-size: 14px;
+        }
+        .receipt-total { 
+            background: #fff;
+            padding: 15px;
+            margin: 20px 0;
+            border: 3px solid #27ae60;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .receipt-total .label { 
+            font-size: 16px;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+        .receipt-total .amount { 
+            font-size: 32px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .status-badge { 
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #ffa500; color: white; }
+        .status-approved { background: #9b59b6; color: white; }
+        .status-completed { background: #27ae60; color: white; }
+        .status-cancelled, .status-rejected { background: #e74c3c; color: white; }
+        .receipt-footer { 
+            text-align: center; 
+            margin-top: 30px;
+            padding-top: 20px; 
+            border-top: 3px double #333;
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+        .thank-you {
+            font-size: 18px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .purpose-text {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        @media print {
+            body { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-header">
+        <h1>🧾 APPOINTMENT RECEIPT</h1>
+        <div class="site-name"><?php echo SITE_NAME; ?></div>
+        <div class="date">Generated: <?php echo date('F d, Y - h:i A'); ?></div>
+    </div>
+
+    <div class="receipt-section">
+        <h2>📋 Receipt Information</h2>
+        <div class="receipt-row">
+            <span class="receipt-label">Receipt Number:</span>
+            <span class="receipt-value">#<?php echo str_pad($appointment['id'], 6, '0', STR_PAD_LEFT); ?></span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Status:</span>
+            <span class="receipt-value">
+                <span class="status-badge status-<?php echo $appointment['status']; ?>">
+                    <?php echo strtoupper($appointment['status']); ?>
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <div class="receipt-section">
+        <h2>👤 Customer Information</h2>
+        <div class="receipt-row">
+            <span class="receipt-label">Name:</span>
+            <span class="receipt-value"><?php echo htmlspecialchars($appointment['first_name'] . ' ' . $appointment['last_name']); ?></span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Email:</span>
+            <span class="receipt-value"><?php echo htmlspecialchars($appointment['email']); ?></span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Phone:</span>
+            <span class="receipt-value"><?php echo htmlspecialchars($appointment['phone'] ?? 'N/A'); ?></span>
+        </div>
+    </div>
+
+    <div class="receipt-section">
+        <h2>🛎️ Service Details</h2>
+        <div class="receipt-row">
+            <span class="receipt-label">Service:</span>
+            <span class="receipt-value"><?php echo htmlspecialchars($appointment['service_name']); ?></span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Date:</span>
+            <span class="receipt-value"><?php echo date('F d, Y (l)', strtotime($appointment['appointment_date'])); ?></span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Time:</span>
+            <span class="receipt-value"><?php echo date('h:i A', strtotime($appointment['appointment_time'])); ?></span>
+        </div>
+        <?php if (!empty($appointment['queue_number'])): ?>
+        <div class="receipt-row">
+            <span class="receipt-label">Queue Number:</span>
+            <span class="receipt-value"><?php echo htmlspecialchars($appointment['queue_number']); ?></span>
+        </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="receipt-total">
+        <div class="label">Service Fee</div>
+        <div class="amount">₱<?php echo number_format($appointment['fee'], 2); ?></div>
+        <div style="margin-top: 10px; font-size: 14px; color: #7f8c8d;">
+            Payment Status: 
+            <?php if (!empty($appointment['payment_proof'])): ?>
+                <span style="color: #27ae60; font-weight: bold;">✓ Proof Uploaded</span>
+            <?php elseif ($appointment['fee'] == 0): ?>
+                <span style="color: #7f8c8d; font-weight: bold;">Free Service</span>
+            <?php else: ?>
+                <span style="color: #e74c3c; font-weight: bold;">⚠ Pending</span>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <div class="receipt-section">
+        <h2>📝 Purpose of Appointment</h2>
+        <div class="purpose-text"><?php echo nl2br(htmlspecialchars($appointment['purpose'])); ?></div>
+    </div>
+
+    <?php if (!empty($appointment['admin_notes'])): ?>
+    <div class="receipt-section">
+        <h2>📋 Admin Notes</h2>
+        <div class="purpose-text" style="border-left-color: #ffc107; background: #fff3cd;">
+            <?php echo nl2br(htmlspecialchars($appointment['admin_notes'])); ?>
+        </div>
+    </div>
+    <?php endif; ?>
+
+    <div class="receipt-footer">
+        <p><strong>Important:</strong> Please keep this receipt for your records.</p>
+        <p>Appointment Created: <?php echo date('M d, Y h:i A', strtotime($appointment['created_at'])); ?></p>
+        <div class="thank-you">Thank you for using our service!</div>
+    </div>
+</body>
+</html>`;
+
+            // Create blob and download
+            const blob = new Blob([receiptHTML], {
+                type: 'text/html'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Appointment_Receipt_<?php echo str_pad($appointment['id'], 6, '0', STR_PAD_LEFT); ?>_<?php echo date('Ymd'); ?>.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // Show success message
+            alert('✓ Receipt downloaded successfully!\n\nYou can open it anytime on your phone or computer.');
         }
 
         // Print styles

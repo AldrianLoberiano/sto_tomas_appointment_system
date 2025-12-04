@@ -58,7 +58,7 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Queue #</th>
                                 <th>Service</th>
                                 <th>Date</th>
                                 <th>Time</th>
@@ -70,7 +70,15 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
                         <tbody>
                             <?php while ($row = $appointments->fetch(PDO::FETCH_ASSOC)): ?>
                                 <tr>
-                                    <td><?php echo $row['id']; ?></td>
+                                    <td>
+                                        <?php if (!empty($row['queue_number'])): ?>
+                                            <span class="badge badge-info" style="font-size: 1em; padding: 8px 12px;">
+                                                <?php echo $row['queue_number']; ?>
+                                            </span>
+                                        <?php else: ?>
+                                            <span style="color: #95a5a6;">Not Assigned</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td><?php echo $row['service_name']; ?></td>
                                     <td><?php echo date('M d, Y', strtotime($row['appointment_date'])); ?></td>
                                     <td><?php echo date('h:i A', strtotime($row['appointment_time'])); ?></td>
@@ -81,13 +89,15 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="view_appointment.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-info">View</a>
-                                        <?php if ($row['fee'] > 0 && $row['status'] == 'approved'): ?>
+                                        <button onclick="openViewAppointmentModal(<?php echo $row['id']; ?>)" class="btn btn-sm btn-info">View</button>
+                                        <?php if ($row['fee'] > 0 && $row['status'] == 'approved' && $row['payment_method'] !== 'cash'): ?>
                                             <?php if (empty($row['payment_proof'])): ?>
                                                 <button onclick="openUploadProofModal(<?php echo $row['id']; ?>, '<?php echo addslashes($row['service_name']); ?>', <?php echo $row['fee']; ?>)" class="btn btn-sm btn-success">📤 Upload Proof</button>
                                             <?php else: ?>
                                                 <span class="badge badge-completed" style="font-size: 0.8em;">✓ Proof Uploaded</span>
                                             <?php endif; ?>
+                                        <?php elseif ($row['fee'] > 0 && $row['status'] == 'approved' && $row['payment_method'] === 'cash'): ?>
+                                            <span class="badge" style="background: #28a745; color: white; font-size: 0.8em;">💵 Cash Payment</span>
                                         <?php endif; ?>
                                         <?php if ($row['status'] == 'pending'): ?>
                                             <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=cancel" method="POST" style="display:inline;">
@@ -282,10 +292,512 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
         </div>
     </div>
 
+    <!-- View Appointment Modal -->
+    <div id="viewAppointmentModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+            <span class="close" onclick="closeViewAppointmentModal()">&times;</span>
+            <div id="appointmentDetailsContent">
+                <div style="text-align: center; padding: 40px;">
+                    <div class="loading-spinner"></div>
+                    <p>Loading appointment details...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentAppointmentId = null;
         let currentAmount = 0;
         let currentService = '';
+
+        function openViewAppointmentModal(appointmentId) {
+            document.getElementById('viewAppointmentModal').style.display = 'block';
+
+            // Fetch appointment details via AJAX
+            fetch('<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=get&id=' + appointmentId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayAppointmentDetails(data.appointment);
+                    } else {
+                        document.getElementById('appointmentDetailsContent').innerHTML =
+                            '<div class="alert alert-error">Failed to load appointment details.</div>';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('appointmentDetailsContent').innerHTML =
+                        '<div class="alert alert-error">Error loading appointment details.</div>';
+                });
+        }
+
+        function closeViewAppointmentModal() {
+            document.getElementById('viewAppointmentModal').style.display = 'none';
+        }
+
+        function displayAppointmentDetails(appointment) {
+            const statusBadgeClass = 'badge-' + appointment.status;
+            const paymentProofSection = appointment.payment_proof ?
+                `<div class="detail-item full-width">
+                    <label>Payment Proof:</label>
+                    <span>
+                        <a href="<?php echo SITE_URL; ?>/uploads/payment_proofs/${appointment.payment_proof}" 
+                           target="_blank" class="btn btn-sm btn-info">View Payment Proof</a>
+                    </span>
+                </div>` : '';
+
+            const content = `
+                <div class="appointment-details-container">
+                    <!-- Status Badge -->
+                    <div class="status-header">
+                        <h2>📋 Appointment #${appointment.id}</h2>
+                        <span class="badge ${statusBadgeClass} badge-lg">
+                            ${appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
+                        </span>
+                    </div>
+
+                    <!-- Service Information -->
+                    <div class="details-card">
+                        <h3>🛎️ Service Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Service Name:</label>
+                                <span>${appointment.service_name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Service Fee:</label>
+                                <span class="fee-amount">₱${parseFloat(appointment.fee).toFixed(2)}</span>
+                            </div>
+                            <div class="detail-item full-width">
+                                <label>Description:</label>
+                                <span>${appointment.description || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item full-width">
+                                <label>Requirements:</label>
+                                <span>${appointment.requirements || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointment Schedule -->
+                    <div class="details-card">
+                        <h3>📅 Schedule Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Date:</label>
+                                <span>${new Date(appointment.appointment_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Time:</label>
+                                <span>${appointment.appointment_time}</span>
+                            </div>
+                            ${appointment.queue_number ? `
+                            <div class="detail-item">
+                                <label>Queue Number:</label>
+                                <span class="badge badge-info">${appointment.queue_number}</span>
+                            </div>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Personal Information -->
+                    <div class="details-card">
+                        <h3>👤 Personal Information</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Name:</label>
+                                <span>${appointment.first_name} ${appointment.last_name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Email:</label>
+                                <span>${appointment.email}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Phone:</label>
+                                <span>${appointment.phone || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Address:</label>
+                                <span>${appointment.address || 'N/A'}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Purpose -->
+                    <div class="details-card">
+                        <h3>📝 Purpose of Appointment</h3>
+                        <div class="purpose-section">
+                            ${appointment.purpose}
+                        </div>
+                    </div>
+
+                    ${appointment.admin_notes ? `
+                    <div class="details-card">
+                        <h3>📋 Admin Notes</h3>
+                        <div class="admin-notes">
+                            ${appointment.admin_notes}
+                        </div>
+                    </div>` : ''}
+
+                    <!-- Payment Information -->
+                    ${appointment.fee > 0 ? `
+                    <div class="details-card">
+                        <h3>💳 Payment Information</h3>
+                        <div class="detail-grid">
+                            ${paymentProofSection}
+                            ${appointment.payment_proof_uploaded_at ? `
+                            <div class="detail-item">
+                                <label>Uploaded At:</label>
+                                <span>${new Date(appointment.payment_proof_uploaded_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>` : ''}
+                        </div>
+                    </div>` : ''}
+
+                    <!-- Timestamps -->
+                    <div class="details-card">
+                        <h3>🕐 Timestamps</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <label>Created:</label>
+                                <span>${new Date(appointment.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Last Updated:</label>
+                                <span>${new Date(appointment.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons-container" style="margin-top: 20px;">
+                        <button onclick="closeViewAppointmentModal()" class="btn btn-secondary">← Close</button>
+                        <button onclick="downloadReceiptFromModal(${appointment.id})" class="btn btn-primary">📥 Download Receipt</button>
+                        ${appointment.status === 'pending' ? 
+                            `<button onclick="confirmCancelFromModal(${appointment.id})" class="btn btn-danger">Cancel Appointment</button>` : ''}
+                        ${appointment.fee > 0 && appointment.status === 'approved' && !appointment.payment_proof && appointment.payment_method !== 'cash' ? 
+                            `<button onclick="closeViewAppointmentModal(); openUploadProofModal(${appointment.id}, '${appointment.service_name}', ${appointment.fee})" class="btn btn-success">💳 Upload Payment Proof</button>` : ''}
+                        ${appointment.fee > 0 && appointment.payment_method === 'cash' ? 
+                            `<div style="padding: 10px; background: #d4edda; border-radius: 6px; margin-top: 10px; width: 100%;">
+                                <span style="color: #155724;">💵 <strong>Cash Payment:</strong> Pay at office with your appointment confirmation. No proof upload required.</span>
+                            </div>` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('appointmentDetailsContent').innerHTML = content;
+        }
+
+        function confirmCancelFromModal(appointmentId) {
+            if (confirm('Are you sure you want to cancel this appointment? This action cannot be undone.')) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=cancel';
+
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'appointment_id';
+                input.value = appointmentId;
+
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        function downloadReceiptFromModal(appointmentId) {
+            // Fetch appointment data again to ensure we have all details
+            fetch('<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=get&id=' + appointmentId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        generateAndDownloadReceipt(data.appointment);
+                    } else {
+                        alert('Failed to generate receipt. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    alert('Error generating receipt. Please try again.');
+                });
+        }
+
+        function generateAndDownloadReceipt(appointment) {
+            const today = new Date();
+            const appointmentDate = new Date(appointment.appointment_date);
+            const createdAt = new Date(appointment.created_at);
+
+            // Format dates
+            const generatedDate = today.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }) + ' - ' +
+                today.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            const formattedAppointmentDate = appointmentDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            const formattedCreatedAt = createdAt.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                }) + ' ' +
+                createdAt.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+            const receiptNumber = String(appointment.id).padStart(6, '0');
+            const filename = `Appointment_Receipt_${receiptNumber}_${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}.html`;
+
+            // Payment status
+            let paymentStatus = '';
+            if (appointment.payment_proof) {
+                paymentStatus = '<span style="color: #27ae60; font-weight: bold;">✓ Proof Uploaded</span>';
+            } else if (appointment.fee == 0) {
+                paymentStatus = '<span style="color: #7f8c8d; font-weight: bold;">Free Service</span>';
+            } else {
+                paymentStatus = '<span style="color: #e74c3c; font-weight: bold;">⚠ Pending</span>';
+            }
+
+            const queueNumberSection = appointment.queue_number ? `
+        <div class="receipt-row">
+            <span class="receipt-label">Queue Number:</span>
+            <span class="receipt-value">${appointment.queue_number}</span>
+        </div>` : '';
+
+            const adminNotesSection = appointment.admin_notes ? `
+    <div class="receipt-section">
+        <h2>📋 Admin Notes</h2>
+        <div class="purpose-text" style="border-left-color: #ffc107; background: #fff3cd;">
+            ${appointment.admin_notes.replace(/\n/g, '<br>')}
+        </div>
+    </div>` : '';
+
+            const receiptHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment Receipt - #${receiptNumber}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            padding: 20px; 
+            background: #fff; 
+            color: #333; 
+            max-width: 600px; 
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        .receipt-header { 
+            text-align: center; 
+            padding-bottom: 20px; 
+            border-bottom: 3px double #333;
+            margin-bottom: 20px;
+        }
+        .receipt-header h1 { 
+            font-size: 24px; 
+            color: #2c3e50; 
+            margin-bottom: 8px;
+        }
+        .receipt-header .site-name { 
+            font-size: 18px;
+            color: #7f8c8d; 
+            font-weight: 600;
+        }
+        .receipt-header .date { 
+            font-size: 14px; 
+            color: #95a5a6;
+            margin-top: 8px;
+        }
+        .receipt-section { 
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .receipt-section h2 { 
+            font-size: 16px; 
+            color: #2c3e50;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #3498db;
+        }
+        .receipt-row { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 8px 0;
+            border-bottom: 1px dotted #ddd;
+        }
+        .receipt-row:last-child { border-bottom: none; }
+        .receipt-label { 
+            font-weight: 600; 
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        .receipt-value { 
+            color: #2c3e50;
+            font-weight: 500;
+            text-align: right;
+            font-size: 14px;
+        }
+        .receipt-total { 
+            background: #fff;
+            padding: 15px;
+            margin: 20px 0;
+            border: 3px solid #27ae60;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .receipt-total .label { 
+            font-size: 16px;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+        .receipt-total .amount { 
+            font-size: 32px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .status-badge { 
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #ffa500; color: white; }
+        .status-approved { background: #9b59b6; color: white; }
+        .status-completed { background: #27ae60; color: white; }
+        .status-cancelled, .status-rejected { background: #e74c3c; color: white; }
+        .receipt-footer { 
+            text-align: center; 
+            margin-top: 30px;
+            padding-top: 20px; 
+            border-top: 3px double #333;
+            color: #7f8c8d;
+            font-size: 13px;
+        }
+        .thank-you {
+            font-size: 18px;
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .purpose-text {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        @media print {
+            body { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-header">
+        <h1>🧾 APPOINTMENT RECEIPT</h1>
+        <div class="site-name"><?php echo SITE_NAME; ?></div>
+        <div class="date">Generated: ${generatedDate}</div>
+    </div>
+
+    <div class="receipt-section">
+        <h2>📋 Receipt Information</h2>
+        <div class="receipt-row">
+            <span class="receipt-label">Receipt Number:</span>
+            <span class="receipt-value">#${receiptNumber}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Status:</span>
+            <span class="receipt-value">
+                <span class="status-badge status-${appointment.status}">
+                    ${appointment.status.toUpperCase()}
+                </span>
+            </span>
+        </div>
+    </div>
+
+    <div class="receipt-section">
+        <h2>👤 Customer Information</h2>
+        <div class="receipt-row">
+            <span class="receipt-label">Name:</span>
+            <span class="receipt-value">${appointment.first_name} ${appointment.last_name}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Email:</span>
+            <span class="receipt-value">${appointment.email}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Phone:</span>
+            <span class="receipt-value">${appointment.phone || 'N/A'}</span>
+        </div>
+    </div>
+
+    <div class="receipt-section">
+        <h2>🛎️ Service Details</h2>
+        <div class="receipt-row">
+            <span class="receipt-label">Service:</span>
+            <span class="receipt-value">${appointment.service_name}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Date:</span>
+            <span class="receipt-value">${formattedAppointmentDate}</span>
+        </div>
+        <div class="receipt-row">
+            <span class="receipt-label">Time:</span>
+            <span class="receipt-value">${appointment.appointment_time}</span>
+        </div>
+        ${queueNumberSection}
+    </div>
+
+    <div class="receipt-total">
+        <div class="label">Service Fee</div>
+        <div class="amount">₱${parseFloat(appointment.fee).toFixed(2)}</div>
+        <div style="margin-top: 10px; font-size: 14px; color: #7f8c8d;">
+            Payment Status: ${paymentStatus}
+        </div>
+    </div>
+
+    <div class="receipt-section">
+        <h2>📝 Purpose of Appointment</h2>
+        <div class="purpose-text">${appointment.purpose.replace(/\n/g, '<br>')}</div>
+    </div>
+
+    ${adminNotesSection}
+
+    <div class="receipt-footer">
+        <p><strong>Important:</strong> Please keep this receipt for your records.</p>
+        <p>Appointment Created: ${formattedCreatedAt}</p>
+        <div class="thank-you">Thank you for using our service!</div>
+    </div>
+</body>
+</html>`;
+
+            // Create blob and download
+            const blob = new Blob([receiptHTML], {
+                type: 'text/html'
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // Show success message
+            alert('✓ Receipt downloaded successfully!\n\nYou can open it anytime on your phone or computer.');
+        }
 
         function openPaymentModal(appointmentId, amount, serviceName) {
             currentAppointmentId = appointmentId;
@@ -539,20 +1051,6 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
 
             return confirm('Upload this payment proof?');
         });
-
-        // Auto-refresh dashboard every 30 seconds
-        setInterval(function() {
-            location.reload();
-        }, 30000); // 30000 milliseconds = 30 seconds
-
-        // Optional: Add visual indicator for next refresh
-        let countdown = 30;
-        setInterval(function() {
-            countdown--;
-            if (countdown <= 0) {
-                countdown = 30;
-            }
-        }, 1000);
     </script>
 
     <style>
@@ -770,6 +1268,121 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
             border-color: #2980b9;
         }
 
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .appointment-details-container {
+            padding: 20px 0;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .status-header h2 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.8em;
+        }
+
+        .badge-lg {
+            font-size: 1.1em;
+            padding: 10px 20px;
+        }
+
+        .details-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .details-card h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-size: 1.3em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .detail-item label {
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .detail-item span {
+            color: #2c3e50;
+            font-size: 1em;
+        }
+
+        .fee-amount {
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 1.3em !important;
+        }
+
+        .purpose-section,
+        .admin-notes {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .admin-notes {
+            border-left-color: #f39c12;
+            background: #fff3cd;
+        }
+
+        .action-buttons-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
         @media (max-width: 768px) {
             .payment-method-card {
                 padding: 15px;
@@ -788,6 +1401,24 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
 
             .proof-preview img {
                 max-height: 200px;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .status-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .action-buttons-container {
+                flex-direction: column;
+            }
+
+            .action-buttons-container .btn {
+                width: 100%;
             }
         }
     </style>

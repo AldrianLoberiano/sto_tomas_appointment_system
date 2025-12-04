@@ -22,6 +22,7 @@ class Appointment
     public $notes;
     public $admin_notes;
     public $queue_number;
+    public $payment_method;
 
     public function __construct($db)
     {
@@ -36,7 +37,7 @@ class Appointment
         $query = "INSERT INTO " . $this->table . " 
                   SET user_id=:user_id, service_id=:service_id, 
                       appointment_date=:appointment_date, appointment_time=:appointment_time, 
-                      purpose=:purpose, notes=:notes, status=:status";
+                      purpose=:purpose, notes=:notes, status=:status, payment_method=:payment_method";
 
         $stmt = $this->conn->prepare($query);
 
@@ -47,6 +48,7 @@ class Appointment
         $stmt->bindParam(":purpose", $this->purpose);
         $stmt->bindParam(":notes", $this->notes);
         $stmt->bindParam(":status", $this->status);
+        $stmt->bindParam(":payment_method", $this->payment_method);
 
         if ($stmt->execute()) {
             $this->id = $this->conn->lastInsertId();
@@ -77,7 +79,7 @@ class Appointment
      */
     public function readByUser()
     {
-        $query = "SELECT a.*, s.service_name, s.fee 
+        $query = "SELECT a.*, s.service_name, s.fee, a.payment_method 
                   FROM " . $this->table . " a
                   LEFT JOIN services s ON a.service_id = s.id
                   WHERE a.user_id = ?

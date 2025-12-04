@@ -34,6 +34,7 @@ class AppointmentController
             $this->appointment->purpose = trim($_POST['purpose']);
             $this->appointment->notes = trim($_POST['notes']);
             $this->appointment->status = STATUS_PENDING;
+            $this->appointment->payment_method = !empty($_POST['payment_method']) ? $_POST['payment_method'] : null;
 
             // Validation
             if (
@@ -231,6 +232,21 @@ if (basename($_SERVER['PHP_SELF']) == 'AppointmentController.php') {
                 header("Location: " . SITE_URL . "/views/admin/appointments.php");
             }
             break;
+
+        case 'get':
+            // AJAX endpoint to get appointment details
+            header('Content-Type: application/json');
+            if (isset($_GET['id'])) {
+                $appointment = $controller->getById($_GET['id']);
+                if ($appointment && $appointment['user_id'] == $_SESSION['user_id']) {
+                    echo json_encode(['success' => true, 'appointment' => $appointment]);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Appointment not found']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'ID required']);
+            }
+            exit();
 
         case 'cancel':
             if ($controller->cancel()) {
