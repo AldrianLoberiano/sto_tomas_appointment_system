@@ -21,6 +21,7 @@ require_once __DIR__ . '/../config/config.php';
                 <h1 style="margin: 0 !important; font-size: 1.5rem !important; text-align: left !important;">Barangay Sto. Tomas</h1>
             </div>
             <nav class="home-nav">
+                <a href="#home">Home</a>
                 <a href="#services">Services</a>
                 <a href="#about">About</a>
                 <a href="#contact">Contact</a>
@@ -31,7 +32,7 @@ require_once __DIR__ . '/../config/config.php';
     </header>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section id="home" class="hero">
         <div class="hero-content">
             <h1>Welcome to Barangay Sto. Tomas</h1>
             <p class="hero-subtitle">Your Partner in Community Development and Service</p>

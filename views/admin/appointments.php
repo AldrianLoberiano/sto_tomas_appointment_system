@@ -166,7 +166,7 @@ $users = $user->read();
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="#" onclick="viewAppointment(<?php echo $row['id']; ?>)" class="btn btn-sm btn-info">View</a>
+                                        <button onclick="viewAppointment(<?php echo $row['id']; ?>)" class="btn btn-sm btn-info">View</button>
                                         <?php if ($row['status'] == 'pending'): ?>
                                             <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=update_status" method="POST" style="display:inline;">
                                                 <input type="hidden" name="appointment_id" value="<?php echo $row['id']; ?>">
@@ -193,6 +193,24 @@ $users = $user->read();
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- View Appointment Modal -->
+    <div id="viewAppointmentModal" class="modal">
+        <div class="modal-content modal-content-large">
+            <span class="close" onclick="closeViewModal()">&times;</span>
+            <div class="modal-header">
+                <h2 id="viewModalTitle">📋 Appointment Details</h2>
+            </div>
+            <div class="modal-body" style="padding: 30px 40px;">
+                <div id="appointmentDetailsContent">
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
+                        <p style="color: #7f8c8d;">Loading appointment details...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- New Appointment Modal -->
@@ -565,6 +583,178 @@ $users = $user->read();
         }
     </style>
     <script src="<?php echo SITE_URL; ?>/assets/js/script.js"></script>
+    <script>
+        function viewAppointment(id) {
+            const modal = document.getElementById('viewAppointmentModal');
+            const content = document.getElementById('appointmentDetailsContent');
+
+            modal.style.display = 'block';
+
+            // Fetch appointment details
+            fetch('<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=get&id=' + id)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const appt = data.appointment;
+                        content.innerHTML = `
+                            <div style="margin-bottom: 25px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; color: white;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                                    <div>
+                                        <h3 style="margin: 0 0 8px 0; font-size: 1.5rem;">Appointment #${appt.id}</h3>
+                                        ${appt.queue_number ? `<p style="margin: 0; opacity: 0.9;">Queue Number: <strong>${appt.queue_number}</strong></p>` : ''}
+                                    </div>
+                                    <span class="badge badge-${appt.status}" style="font-size: 1rem; padding: 10px 20px;">
+                                        ${appt.status.charAt(0).toUpperCase() + appt.status.slice(1)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; gap: 25px;">
+                                <!-- Resident Information -->
+                                <div style="background: #f8f9ff; padding: 25px; border-radius: 15px; border-left: 4px solid #667eea;">
+                                    <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                                        <span>👤</span> Resident Information
+                                    </h3>
+                                    <div style="display: grid; gap: 12px;">
+                                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                                            <strong style="color: #7f8c8d;">Name:</strong>
+                                            <span style="color: #2d3748;">${appt.first_name} ${appt.last_name}</span>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                                            <strong style="color: #7f8c8d;">Email:</strong>
+                                            <span style="color: #2d3748;">${appt.email}</span>
+                                        </div>
+                                        ${appt.phone ? `
+                                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                                            <strong style="color: #7f8c8d;">Phone:</strong>
+                                            <span style="color: #2d3748;">${appt.phone}</span>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+
+                                <!-- Service Information -->
+                                <div style="background: #f0f9f4; padding: 25px; border-radius: 15px; border-left: 4px solid #27ae60;">
+                                    <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                                        <span>🛎️</span> Service Information
+                                    </h3>
+                                    <div style="display: grid; gap: 12px;">
+                                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                                            <strong style="color: #7f8c8d;">Service:</strong>
+                                            <span style="color: #2d3748;">${appt.service_name}</span>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                                            <strong style="color: #7f8c8d;">Fee:</strong>
+                                            <span style="color: #27ae60; font-weight: 600;">₱${parseFloat(appt.fee).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                        </div>
+                                        ${appt.description ? `
+                                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                                            <strong style="color: #7f8c8d;">Description:</strong>
+                                            <span style="color: #2d3748;">${appt.description}</span>
+                                        </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+
+                                <!-- Appointment Schedule -->
+                                <div style="background: #fff9f0; padding: 25px; border-radius: 15px; border-left: 4px solid #f39c12;">
+                                    <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                                        <span>📅</span> Schedule
+                                    </h3>
+                                    <div style="display: grid; gap: 12px;">
+                                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                                            <strong style="color: #7f8c8d;">Date:</strong>
+                                            <span style="color: #2d3748;">${new Date(appt.appointment_date).toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}</span>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 10px;">
+                                            <strong style="color: #7f8c8d;">Time:</strong>
+                                            <span style="color: #2d3748;">${appt.appointment_time}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                ${appt.purpose ? `
+                                <!-- Purpose -->
+                                <div style="background: #f8f3fb; padding: 25px; border-radius: 15px; border-left: 4px solid #9b59b6;">
+                                    <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                                        <span>📝</span> Purpose
+                                    </h3>
+                                    <p style="color: #2d3748; margin: 0; line-height: 1.6;">${appt.purpose}</p>
+                                </div>
+                                ` : ''}
+
+                                ${appt.notes ? `
+                                <!-- Notes -->
+                                <div style="background: #f5f5f5; padding: 25px; border-radius: 15px; border-left: 4px solid #95a5a6;">
+                                    <h3 style="color: #2d3748; margin: 0 0 15px 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                                        <span>📄</span> Additional Notes
+                                    </h3>
+                                    <p style="color: #2d3748; margin: 0; line-height: 1.6;">${appt.notes}</p>
+                                </div>
+                                ` : ''}
+
+                                <!-- Action Buttons -->
+                                <div style="display: flex; gap: 12px; flex-wrap: wrap; padding-top: 10px;">
+                                    ${appt.status === 'pending' ? `
+                                        <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=update_status" method="POST" style="display:inline;">
+                                            <input type="hidden" name="appointment_id" value="${appt.id}">
+                                            <input type="hidden" name="status" value="approved">
+                                            <button type="submit" class="btn btn-success" style="padding: 12px 24px; border-radius: 25px;">
+                                                ✓ Approve Appointment
+                                            </button>
+                                        </form>
+                                        <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=update_status" method="POST" style="display:inline;">
+                                            <input type="hidden" name="appointment_id" value="${appt.id}">
+                                            <input type="hidden" name="status" value="rejected">
+                                            <button type="submit" class="btn btn-danger" style="padding: 12px 24px; border-radius: 25px;">
+                                                ✗ Reject Appointment
+                                            </button>
+                                        </form>
+                                    ` : ''}
+                                    ${appt.status === 'approved' ? `
+                                        <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=update_status" method="POST" style="display:inline;">
+                                            <input type="hidden" name="appointment_id" value="${appt.id}">
+                                            <input type="hidden" name="status" value="completed">
+                                            <button type="submit" class="btn btn-success" style="padding: 12px 24px; border-radius: 25px;">
+                                                ✓ Mark as Completed
+                                            </button>
+                                        </form>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        content.innerHTML = `
+                            <div style="text-align: center; padding: 40px;">
+                                <div style="font-size: 3rem; margin-bottom: 10px;">❌</div>
+                                <p style="color: #e74c3c; font-size: 1.1rem; font-weight: 500;">${data.message || 'Failed to load appointment details'}</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch(error => {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">⚠️</div>
+                            <p style="color: #e74c3c; font-size: 1.1rem; font-weight: 500;">Error loading appointment details</p>
+                            <p style="color: #7f8c8d; font-size: 0.9rem;">${error.message}</p>
+                        </div>
+                    `;
+                });
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewAppointmentModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('viewAppointmentModal');
+            if (event.target == modal) {
+                closeViewModal();
+            }
+        }
+    </script>
 </body>
 
 </html>

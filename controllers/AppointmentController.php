@@ -238,10 +238,11 @@ if (basename($_SERVER['PHP_SELF']) == 'AppointmentController.php') {
             header('Content-Type: application/json');
             if (isset($_GET['id'])) {
                 $appointment = $controller->getById($_GET['id']);
-                if ($appointment && $appointment['user_id'] == $_SESSION['user_id']) {
+                // Allow admin to view any appointment, or user to view their own
+                if ($appointment && ($_SESSION['role'] == 'admin' || $appointment['user_id'] == $_SESSION['user_id'])) {
                     echo json_encode(['success' => true, 'appointment' => $appointment]);
                 } else {
-                    echo json_encode(['success' => false, 'message' => 'Appointment not found']);
+                    echo json_encode(['success' => false, 'message' => 'Appointment not found or access denied']);
                 }
             } else {
                 echo json_encode(['success' => false, 'message' => 'ID required']);
