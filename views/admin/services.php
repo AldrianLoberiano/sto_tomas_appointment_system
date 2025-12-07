@@ -21,7 +21,7 @@ $services = $service->read();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Services Management - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -30,10 +30,11 @@ $services = $service->read();
     <div class="main-container">
         <?php include __DIR__ . '/../includes/admin_sidebar.php'; ?>
 
-        <main class="content">
-            <div class="page-header">
-                <h1>Services Management</h1>
-                <p>Manage barangay services and offerings</p>
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 25px;">
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 35px 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -80px; right: -80px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0 0 10px 0; position: relative; z-index: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: 700;">🛠️ Services Management</h1>
+                <p style="color: rgba(255,255,255,0.95); font-size: 1.15rem; margin: 0; position: relative; z-index: 1;">Manage barangay services and offerings</p>
             </div>
 
             <?php if (isset($_SESSION['success'])): ?>
@@ -54,13 +55,68 @@ $services = $service->read();
                 </div>
             <?php endif; ?>
 
-            <div class="action-buttons">
-                <button onclick="openServiceModal('create')" class="btn btn-primary">➕ Add New Service</button>
+            <div class="action-buttons" style="margin-bottom: 25px;">
+                <button onclick="openServiceModal('create')" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 14px 32px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);">
+                    ➕ Add New Service
+                </button>
             </div>
 
-            <div class="section">
-                <h2>All Services</h2>
-                <div class="table-container">
+            <?php
+            $stats_query = "SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active,
+                SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END) as inactive,
+                AVG(fee) as avg_fee
+                FROM services";
+            $stats_stmt = $db->prepare($stats_query);
+            $stats_stmt->execute();
+            $service_stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+            ?>
+
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 35px;">
+                <div class="stat-card" style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #3498db; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(52,152,219,0.1) 0%, rgba(52,152,219,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">🛎️</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Total Services</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #3498db; line-height: 1;"><?php echo $service_stats['total']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">All offerings</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9f4 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #27ae60; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(39,174,96,0.15) 0%, rgba(39,174,96,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">✅</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Active Services</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #27ae60; line-height: 1;"><?php echo $service_stats['active']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Currently available</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #fff0f0 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #e74c3c; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(231,76,60,0.15) 0%, rgba(231,76,60,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">⛔</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Inactive Services</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #e74c3c; line-height: 1;"><?php echo $service_stats['inactive']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Not available</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f8f3fb 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #9b59b6; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(155,89,182,0.15) 0%, rgba(155,89,182,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">💰</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Average Fee</p>
+                    <h3 style="font-size: 2rem; font-weight: 700; margin: 0 0 8px 0; color: #9b59b6; line-height: 1;">₱<?php echo number_format($service_stats['avg_fee'], 2); ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Per service</div>
+                </div>
+            </div>
+
+            <div class="section" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
+                <h2 style="color: #2d3748; font-size: 1.8rem; margin: 0 0 25px 0; display: flex; align-items: center; gap: 12px; font-weight: 700;">
+                    <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 6px; height: 35px; border-radius: 3px;"></span>
+                    All Services
+                </h2>
+                <div class="table-container" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                     <table>
                         <thead>
                             <tr>

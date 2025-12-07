@@ -118,15 +118,15 @@ $services = $service->read();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reports - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css?v=<?php echo time(); ?>">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         .filter-section {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
         }
 
         .filter-row {
@@ -149,15 +149,25 @@ $services = $service->read();
 
         .filter-group select,
         .filter-group input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
             font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .report-section {
             background: white;
-            padding: 20px;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -179,22 +189,33 @@ $services = $service->read();
         .chart-wrapper {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
         .chart-box {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
         }
 
         .chart-box h2 {
-            margin-top: 0;
-            margin-bottom: 15px;
-            color: #2c3e50;
-            font-size: 20px;
+            margin: 0 0 25px 0;
+            color: #2d3748;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chart-box h2::before {
+            content: '';
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 5px;
+            height: 28px;
+            border-radius: 3px;
         }
 
         @media (max-width: 1024px) {
@@ -219,25 +240,52 @@ $services = $service->read();
         .summary-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 15px;
             text-align: center;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
         }
 
         .summary-card:nth-child(2) {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 8px 20px rgba(240, 147, 251, 0.3);
+        }
+
+        .summary-card:nth-child(2):hover {
+            box-shadow: 0 12px 30px rgba(240, 147, 251, 0.4);
         }
 
         .summary-card:nth-child(3) {
             background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .summary-card:nth-child(3):hover {
+            box-shadow: 0 12px 30px rgba(79, 172, 254, 0.4);
         }
 
         .summary-card:nth-child(4) {
             background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            box-shadow: 0 8px 20px rgba(67, 233, 123, 0.3);
+        }
+
+        .summary-card:nth-child(4):hover {
+            box-shadow: 0 12px 30px rgba(67, 233, 123, 0.4);
         }
 
         .summary-card:nth-child(5) {
             background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            box-shadow: 0 8px 20px rgba(250, 112, 154, 0.3);
+        }
+
+        .summary-card:nth-child(5):hover {
+            box-shadow: 0 12px 30px rgba(250, 112, 154, 0.4);
         }
 
         .summary-card:nth-child(6) {
@@ -282,9 +330,50 @@ $services = $service->read();
     <div class="main-container">
         <?php include __DIR__ . '/../includes/admin_sidebar.php'; ?>
 
-        <main class="content">
-            <div class="page-header">
-                <h1>Reports & Analytics</h1>
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 25px;">
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 35px 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -80px; right: -80px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <div style="position: absolute; bottom: -40px; left: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0 0 10px 0; position: relative; z-index: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: 700;">📈 Reports & Analytics</h1>
+                <p style="color: rgba(255,255,255,0.95); font-size: 1.15rem; margin: 0; position: relative; z-index: 1;">View insights and generate reports</p>
+            </div>
+
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 35px;">
+                <div class="stat-card" style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #3498db; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(52,152,219,0.1) 0%, rgba(52,152,219,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">📊</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Total Records</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #3498db; line-height: 1;"><?php echo $stats['total']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">In selected period</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #fff9f0 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #f39c12; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(243,156,18,0.15) 0%, rgba(243,156,18,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">⏳</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Pending</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #f39c12; line-height: 1;"><?php echo $stats['pending']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Awaiting action</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f8f3fb 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #9b59b6; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(155,89,182,0.15) 0%, rgba(155,89,182,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">✅</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Approved</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #9b59b6; line-height: 1;"><?php echo $stats['approved']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Ready to serve</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9f4 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #27ae60; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(39,174,96,0.15) 0%, rgba(39,174,96,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">✔️</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Completed</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #27ae60; line-height: 1;"><?php echo $stats['completed']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Successfully served</div>
+                </div>
             </div>
 
             <!-- Filter Section -->

@@ -51,15 +51,21 @@ if ($hour < 12) {
     <div class="main-container">
         <?php include __DIR__ . '/../includes/admin_sidebar.php'; ?>
 
-        <main class="content">
-            <div class="page-header">
-                <h1>Dashboard</h1>
-                <p style="font-size: 1.1rem;">
-                    <?php echo $greetingIcon; ?> <?php echo $greeting; ?>, <?php echo $_SESSION['full_name']; ?>!
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 25px;">
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 35px 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -80px; right: -80px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%; z-index: 0;"></div>
+                <div style="position: absolute; bottom: -40px; left: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%; z-index: 0;"></div>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0 0 10px 0; position: relative; z-index: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: 700;">Admin Dashboard</h1>
+                <p style="color: rgba(255,255,255,0.95); font-size: 1.15rem; margin: 0; position: relative; z-index: 1; font-weight: 500;">
+                    <?php echo $greetingIcon; ?> <?php echo $greeting; ?>, <strong><?php echo $_SESSION['full_name']; ?></strong>!
                     <?php if ($todayCount > 0): ?>
-                        You have <strong><?php echo $todayCount; ?></strong> appointment<?php echo $todayCount > 1 ? 's' : ''; ?> scheduled for today.
+                        <span style="display: inline-block; margin-top: 8px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; backdrop-filter: blur(10px);">
+                            📅 <strong><?php echo $todayCount; ?></strong> appointment<?php echo $todayCount > 1 ? 's' : ''; ?> scheduled for today
+                        </span>
                     <?php else: ?>
-                        You have no appointments scheduled for today.
+                        <span style="display: inline-block; margin-top: 8px; background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 20px;">
+                            ✨ No appointments scheduled for today
+                        </span>
                     <?php endif; ?>
                 </p>
             </div>
@@ -123,9 +129,12 @@ if ($hour < 12) {
             </div>
 
             <div class="dashboard-sections">
-                <div class="section">
-                    <h2>Recent Appointments</h2>
-                    <div class="table-container">
+                <div class="section" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-top: 25px;">
+                    <h2 style="color: #2d3748; font-size: 1.8rem; margin: 0 0 25px 0; display: flex; align-items: center; gap: 12px; font-weight: 700;">
+                        <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 6px; height: 35px; border-radius: 3px; display: inline-block;"></span>
+                        📋 Recent Appointments
+                    </h2>
+                    <div class="table-container" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                         <table>
                             <thead>
                                 <tr>
@@ -444,6 +453,143 @@ if ($hour < 12) {
 
         .stat-number {
             transition: all 0.3s ease;
+        }
+
+        /* Modern table styling */
+        .table-container table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-container table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .table-container table thead th {
+            color: white;
+            padding: 18px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            border: none;
+        }
+
+        .table-container table tbody tr {
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .table-container table tbody tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        .table-container table tbody tr:hover {
+            background: linear-gradient(90deg, #f0f4ff 0%, #e8ecff 100%);
+            transform: translateX(5px);
+            box-shadow: -4px 0 0 #667eea;
+        }
+
+        .table-container table tbody td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #e8e9f3;
+        }
+
+        /* Modern badge styling */
+        .badge {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            text-transform: capitalize;
+        }
+
+        .badge-pending {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .badge-approved {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .badge-completed {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .badge-cancelled,
+        .badge-rejected {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Modern button styling */
+        .btn-sm {
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Alert styling */
+        .alert {
+            border-radius: 15px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        /* Enhanced stat cards with modern gradients */
+        .stat-card {
+            background: white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid;
+            border-radius: 20px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon-wrapper {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+        }
+
+        .stat-icon {
+            font-size: 2.3rem;
+        }
+
+        .stat-number {
+            font-size: 2.8rem;
         }
     </style>
 </body>

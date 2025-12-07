@@ -17,17 +17,19 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
     <?php include __DIR__ . '/../includes/user_header.php'; ?>
 
     <div class="main-container">
-        <main class="content">
-            <div class="page-header">
-                <h1>My Dashboard</h1>
-                <p>Welcome, <?php echo $_SESSION['full_name']; ?>!</p>
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh;">
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0;"></div>
+                <div style="position: absolute; bottom: -30px; left: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0;"></div>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0 0 10px 0; position: relative; z-index: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2);">My Dashboard</h1>
+                <p style="color: rgba(255,255,255,0.95); font-size: 1.2rem; margin: 0; position: relative; z-index: 1;">👋 Welcome back, <strong><?php echo $_SESSION['full_name']; ?></strong>!</p>
             </div>
 
             <?php if (isset($_SESSION['success'])): ?>
@@ -48,13 +50,41 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
                 </div>
             <?php endif; ?>
 
-            <div class="action-buttons">
-                <a href="new_appointment.php" class="btn btn-primary">📅 New Appointment</a>
+            <div class="action-buttons" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <a href="new_appointment.php" class="btn btn-primary new-appt-btn" style="font-size: 1.1rem; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 50px; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); position: relative; overflow: hidden; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);">
+                    <span style="position: relative; z-index: 2; display: flex; align-items: center; font-weight: 600; letter-spacing: 0.5px;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <line x1="12" y1="14" x2="12" y2="18"></line>
+                            <line x1="10" y1="16" x2="14" y2="16"></line>
+                        </svg>
+                        Book New Appointment
+                    </span>
+                </a>
+                <div class="filter-container" style="display: flex; gap: 12px; align-items: center; background: white; padding: 12px 20px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    <select id="statusFilter" class="filter-select" style="padding: 10px 18px; border: 2px solid #e8e9f3; border-radius: 25px; font-size: 14px; cursor: pointer; transition: all 0.3s; background: #f8f9ff; font-weight: 500; color: #4a5568;">
+                        <option value="all">🔍 All Status</option>
+                        <option value="pending">⏳ Pending</option>
+                        <option value="approved">✅ Approved</option>
+                        <option value="completed">✔️ Completed</option>
+                        <option value="cancelled">❌ Cancelled</option>
+                        <option value="rejected">⛔ Rejected</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="section">
-                <h2>My Appointments</h2>
-                <div class="table-container">
+            <div class="section" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); backdrop-filter: blur(10px);">
+                <h2 style="color: #2d3748; font-size: 1.8rem; margin: 0 0 25px 0; display: flex; align-items: center; gap: 12px;">
+                    <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 6px; height: 35px; border-radius: 3px; display: inline-block;"></span>
+                    My Appointments
+                </h2>
+                <div class="table-container" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                     <table>
                         <thead>
                             <tr>
@@ -1496,7 +1526,237 @@ $appointments = $appointmentController->getUserAppointments($_SESSION['user_id']
         a:hover {
             opacity: 0.8;
         }
+
+        /* Filter select hover */
+        .filter-select:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background: white;
+        }
+
+        /* Modern table styling */
+        .table-container table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-container table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .table-container table thead th {
+            color: white;
+            padding: 18px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table-container table tbody tr {
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .table-container table tbody tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        .table-container table tbody tr:hover {
+            background: linear-gradient(90deg, #f0f4ff 0%, #e8ecff 100%);
+            transform: translateX(5px);
+            box-shadow: -4px 0 0 #667eea;
+        }
+
+        .table-container table tbody td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #e8e9f3;
+        }
+
+        /* Modern badge styling */
+        .badge {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            text-transform: capitalize;
+        }
+
+        .badge-pending {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .badge-approved {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .badge-completed {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .badge-cancelled,
+        .badge-rejected {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Modern button styling */
+        .btn-sm {
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(235, 51, 73, 0.4);
+        }
+
+        /* Alert styling */
+        .alert {
+            border-radius: 15px;
+            padding: 18px 24px;
+            margin-bottom: 25px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        /* Trendy New Appointment Button */
+        .new-appt-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+            transition: left 0.6s ease;
+        }
+
+        .new-appt-btn:hover::before {
+            left: 100%;
+        }
+
+        .new-appt-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .new-appt-btn:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .new-appt-btn svg {
+            transition: transform 0.3s ease;
+        }
+
+        .new-appt-btn:hover svg {
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+            }
+        }
+
+        .new-appt-btn {
+            animation: pulse-glow 3s infinite;
+        }
+
+        .new-appt-btn:hover {
+            animation: none;
+        }
     </style>
+
+    <script>
+        // Filter functionality
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            const filterValue = this.value.toLowerCase();
+            const tableRows = document.querySelectorAll('.table-container tbody tr');
+
+            tableRows.forEach(row => {
+                if (filterValue === 'all') {
+                    row.style.display = '';
+                } else {
+                    const statusCell = row.querySelector('td:nth-child(6)');
+                    if (statusCell) {
+                        const statusBadge = statusCell.querySelector('.badge');
+                        if (statusBadge) {
+                            const statusText = statusBadge.textContent.toLowerCase().trim();
+                            if (statusText === filterValue) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

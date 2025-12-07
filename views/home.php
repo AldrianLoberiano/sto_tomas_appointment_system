@@ -16,8 +16,9 @@ require_once __DIR__ . '/../config/config.php';
     <!-- Navigation Header -->
     <header class="home-header">
         <div class="header-content">
-            <div class="logo">
-                <h1>🏛️ Barangay Sto. Tomas</h1>
+            <div class="logo" style="display: flex !important; align-items: center !important; gap: 15px !important; justify-content: flex-start !important; flex-direction: row !important;">
+                <img src="<?php echo SITE_URL; ?>/assets/images/logo.png?v=<?php echo time(); ?>" alt="Barangay Sto. Tomas" class="logo-image" style="height: 60px !important; width: 60px !important; flex-shrink: 0 !important;">
+                <h1 style="margin: 0 !important; font-size: 1.5rem !important; text-align: left !important;">Barangay Sto. Tomas</h1>
             </div>
             <nav class="home-nav">
                 <a href="#services">Services</a>
@@ -88,7 +89,7 @@ require_once __DIR__ . '/../config/config.php';
         </div>
     </section>
 
-        <!-- About Section -->
+    <!-- About Section -->
     <section id="about" class="about-section">
         <div class="container">
             <div class="about-content">

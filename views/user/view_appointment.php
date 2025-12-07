@@ -31,17 +31,19 @@ if (!$appointment || $appointment['user_id'] != $_SESSION['user_id']) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointment Details - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
     <?php include __DIR__ . '/../includes/user_header.php'; ?>
 
     <div class="main-container">
-        <main class="content">
-            <div class="page-header">
-                <h1>📋 Appointment Details</h1>
-                <p>View your appointment information</p>
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 25px;">
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 35px 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -80px; right: -80px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <div style="position: absolute; bottom: -40px; left: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0 0 10px 0; position: relative; z-index: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: 700;">📋 Appointment Details</h1>
+                <p style="color: rgba(255,255,255,0.95); font-size: 1.15rem; margin: 0; position: relative; z-index: 1;">View your appointment information</p>
             </div>
 
             <?php if (isset($_SESSION['success'])): ?>
@@ -539,35 +541,56 @@ if (!$appointment || $appointment['user_id'] != $_SESSION['user_id']) {
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e0e0e0;
+            padding: 25px 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
         }
 
         .status-header h2 {
-            margin: 0;
-            color: #2c3e50;
+            margin: 0 0 12px 0;
+            color: #2d3748;
+            font-size: 2rem;
+            font-weight: 700;
         }
 
         .badge-lg {
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 1.1em;
-            font-weight: bold;
+            font-weight: 600;
+            border-radius: 50px;
         }
 
         .details-card {
             background: white;
-            border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .details-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
         }
 
         .details-card h3 {
-            margin: 0 0 20px 0;
-            color: #2c3e50;
-            font-size: 1.2em;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
+            margin: 0 0 25px 0;
+            color: #2d3748;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .details-card h3::before {
+            content: '';
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 5px;
+            height: 28px;
+            border-radius: 3px;
         }
 
         .detail-grid {
@@ -638,21 +661,25 @@ if (!$appointment || $appointment['user_id'] != $_SESSION['user_id']) {
         }
 
         .btn-secondary {
-            background-color: #95a5a6;
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
             color: white;
+            box-shadow: 0 4px 12px rgba(149, 165, 166, 0.3);
         }
 
         .btn-secondary:hover {
-            background-color: #7f8c8d;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(149, 165, 166, 0.4);
         }
 
         .btn-info {
-            background-color: #3498db;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
             color: white;
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
         }
 
         .btn-info:hover {
-            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(79, 172, 254, 0.4);
         }
 
         /* Payment Proof Styles */
@@ -678,7 +705,7 @@ if (!$appointment || $appointment['user_id'] != $_SESSION['user_id']) {
 
         .payment-proof-image img:hover {
             transform: scale(1.05);
-            border-color: #3498db;
+            border-color: #667eea;
         }
 
         .payment-proof-info {

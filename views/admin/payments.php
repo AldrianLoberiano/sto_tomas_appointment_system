@@ -89,7 +89,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Management - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -98,39 +98,50 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     <div class="main-container">
         <?php include __DIR__ . '/../includes/admin_sidebar.php'; ?>
 
-        <main class="content">
-            <div class="page-header">
-                <h1>Payment Management</h1>
-                <p>Track and manage appointment payments</p>
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 25px;">
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 35px 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -80px; right: -80px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <div style="position: absolute; bottom: -40px; left: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0 0 10px 0; position: relative; z-index: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: 700;">💳 Payment Management</h1>
+                <p style="color: rgba(255,255,255,0.95); font-size: 1.15rem; margin: 0; position: relative; z-index: 1;">Track and manage service payments</p>
             </div>
 
-            <!-- Payment Statistics -->
-            <div class="stats-grid">
-                <div class="stat-card paid">
-                    <div class="stat-icon">✅</div>
-                    <div class="stat-info">
-                        <h3>₱<?php echo number_format($stats['total_paid'], 2); ?></h3>
-                        <p>Total Paid (<?php echo $stats['count_paid']; ?> payments)</p>
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 35px;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9f4 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #27ae60; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(39,174,96,0.15) 0%, rgba(39,174,96,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">💰</span>
                     </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Total Paid</p>
+                    <h3 style="font-size: 2rem; font-weight: 700; margin: 0 0 8px 0; color: #27ae60; line-height: 1;">₱<?php echo number_format($stats['total_paid'], 2); ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;"><?php echo $stats['count_paid']; ?> payments</div>
                 </div>
-                <div class="stat-card pending">
-                    <div class="stat-icon">⏳</div>
-                    <div class="stat-info">
-                        <h3>₱<?php echo number_format($stats['total_pending'], 2); ?></h3>
-                        <p>Pending Payment (<?php echo $stats['count_pending']; ?> appointments)</p>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #fff9f0 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #f39c12; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(243,156,18,0.15) 0%, rgba(243,156,18,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">⏳</span>
                     </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Pending Payment</p>
+                    <h3 style="font-size: 2rem; font-weight: 700; margin: 0 0 8px 0; color: #f39c12; line-height: 1;">₱<?php echo number_format($stats['total_pending'], 2); ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;"><?php echo $stats['count_pending']; ?> pending</div>
                 </div>
-                <div class="stat-card total">
-                    <div class="stat-icon">💰</div>
-                    <div class="stat-info">
-                        <h3>₱<?php echo number_format($stats['total_amount'], 2); ?></h3>
-                        <p>Total Revenue</p>
+
+                <div class="stat-card" style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #3498db; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(52,152,219,0.1) 0%, rgba(52,152,219,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">📊</span>
                     </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Total Revenue</p>
+                    <h3 style="font-size: 2rem; font-weight: 700; margin: 0 0 8px 0; color: #3498db; line-height: 1;">₱<?php echo number_format($stats['total_amount'], 2); ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">All transactions</div>
                 </div>
             </div>
+    
 
             <!-- Filters -->
-            <div class="filter-section">
+            <div class="filter-section" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); margin-bottom: 30px;">
+                <h2 style="color: #2d3748; font-size: 1.5rem; margin: 0 0 20px 0; display: flex; align-items: center; gap: 12px; font-weight: 700;">
+                    <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 5px; height: 28px; border-radius: 3px;"></span>
+                    🔍 Filter Payments
+                </h2>
                 <form method="GET" action="" class="filter-form" id="filterForm">
                     <div class="filter-group">
                         <label for="status">Appointment Status:</label>
@@ -156,9 +167,9 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
             <!-- Payments Table -->
             <div class="section">
-                <div class="section-header">
-                    <h2>Payment Records</h2>
-                    <button onclick="window.print()" class="btn">🖨️ Print</button>
+                <div class="section-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0;">Payment Records</h2>
+                    <button onclick="window.print()" class="btn btn-info" style="padding: 10px 24px; border-radius: 25px;">🖨️ Print</button>
                 </div>
 
                 <?php if (empty($appointments)): ?>

@@ -51,8 +51,9 @@ $user->readOne();
             height: 150px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid #e74c3c;
-            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            border: 5px solid white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -75,7 +76,7 @@ $user->readOne();
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: #e74c3c;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: 3px solid white;
             cursor: pointer;
@@ -83,11 +84,13 @@ $user->readOne();
             align-items: center;
             justify-content: center;
             font-size: 18px;
-            transition: background 0.3s;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .change-picture-btn:hover {
-            background: #c0392b;
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
         }
 
         .profile-name {
@@ -114,17 +117,27 @@ $user->readOne();
         .profile-section {
             background: white;
             padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
         }
 
         .profile-section h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            border-bottom: 2px solid #e74c3c;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            margin: 0 0 25px 0;
+            color: #2d3748;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-section h2::before {
+            content: '';
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 6px;
+            height: 35px;
+            border-radius: 3px;
         }
 
         .info-grid {
@@ -135,9 +148,16 @@ $user->readOne();
         }
 
         .info-item {
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 5px;
+            padding: 18px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f0ff 100%);
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
         }
 
         .info-label {
@@ -247,9 +267,9 @@ $user->readOne();
     <div class="main-container">
         <?php include __DIR__ . '/../includes/admin_sidebar.php'; ?>
 
-        <main class="content">
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 25px;">
             <div class="profile-container">
-                <div class="profile-header">
+                <div class="profile-header" style="background: white; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
                     <div class="profile-avatar-wrapper">
                         <div class="profile-avatar" id="avatarDisplay">
                             <?php if (!empty($user->profile_picture) && file_exists(__DIR__ . '/../../' . $user->profile_picture)): ?>

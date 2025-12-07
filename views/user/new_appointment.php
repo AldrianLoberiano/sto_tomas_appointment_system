@@ -20,17 +20,19 @@ $services = $service->readActive();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>New Appointment - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
     <?php include __DIR__ . '/../includes/user_header.php'; ?>
 
     <div class="main-container">
-        <main class="content">
-            <div class="page-header">
-                <h1>Book New Appointment</h1>
-                <p>Schedule your visit to the barangay</p>
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 25px;">
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 35px 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -80px; right: -80px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <div style="position: absolute; bottom: -40px; left: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0 0 10px 0; position: relative; z-index: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: 700;">📅 Book New Appointment</h1>
+                <p style="color: rgba(255,255,255,0.95); font-size: 1.15rem; margin: 0; position: relative; z-index: 1;">Schedule your visit to the barangay</p>
             </div>
 
             <?php if (isset($_SESSION['error'])): ?>
@@ -42,7 +44,7 @@ $services = $service->readActive();
                 </div>
             <?php endif; ?>
 
-            <div class="section">
+            <div class="section" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
                 <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=create" method="POST" id="appointmentForm">
                     <div class="form-group">
                         <label for="service_id">Service *</label>
@@ -472,8 +474,8 @@ $services = $service->readActive();
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .form-group select {
@@ -559,8 +561,8 @@ $services = $service->readActive();
         }
 
         .calendar-day.today {
-            border-color: #3498db;
-            color: #3498db;
+            border-color: #667eea;
+            color: #667eea;
             font-weight: 700;
         }
 
@@ -576,11 +578,11 @@ $services = $service->readActive();
         }
 
         .calendar-day.selected {
-            background: #3498db;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            font-weight: 700;
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+            font-weight: bold;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         /* Time Slots Styles */
@@ -611,18 +613,18 @@ $services = $service->readActive();
         }
 
         .time-slot:hover {
-            border-color: #3498db;
-            background: #ecf0f1;
+            border-color: #667eea;
+            background: #f0f0ff;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.15);
         }
 
         .time-slot.selected {
-            background: #3498db;
-            border-color: #3498db;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .time-label {
@@ -744,15 +746,15 @@ $services = $service->readActive();
         }
 
         .payment-method-option:hover {
-            border-color: #3498db;
-            background: #e3f2fd;
+            border-color: #667eea;
+            background: #f0f0ff;
             transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
         }
 
         .payment-method-option.selected {
-            border-color: #27ae60;
-            background: #e8f5e9;
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f0ff 100%);
             box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
         }
 

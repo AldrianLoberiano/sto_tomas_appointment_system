@@ -1,7 +1,8 @@
 <header class="header">
     <div class="header-content">
-        <div class="logo">
-            <h1><?php echo SITE_NAME; ?></h1>
+        <div class="logo" style="display: flex !important; align-items: center !important; gap: 15px !important; justify-content: flex-start !important; flex-direction: row !important;">
+            <img src="<?php echo SITE_URL; ?>/assets/images/logo.png?v=<?php echo time(); ?>" alt="<?php echo SITE_NAME; ?>" class="logo-image" style="height: 60px !important; width: 60px !important; flex-shrink: 0 !important;">
+            <h1 style="margin: 0 !important; font-size: 1.5rem !important; text-align: left !important;"><?php echo SITE_NAME; ?></h1>
         </div>
         <nav class="nav">
             <a href="<?php echo SITE_URL; ?>/views/admin/profile.php" title="Profile">

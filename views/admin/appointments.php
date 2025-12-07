@@ -28,7 +28,7 @@ $users = $user->read();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Appointments - <?php echo SITE_NAME; ?></title>
-    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?php echo SITE_URL; ?>/assets/css/style.css?v=<?php echo time(); ?>">
 </head>
 
 <body>
@@ -37,10 +37,12 @@ $users = $user->read();
     <div class="main-container">
         <?php include __DIR__ . '/../includes/admin_sidebar.php'; ?>
 
-        <main class="content">
-            <div class="page-header">
-                <h1>Appointments Management</h1>
-                <p>Manage all appointment bookings</p>
+        <main class="content" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; padding: 25px;">
+            <div class="page-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 35px 30px; border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -80px; right: -80px; width: 250px; height: 250px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <div style="position: absolute; bottom: -40px; left: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.08); border-radius: 50%;"></div>
+                <h1 style="color: white; font-size: 2.5rem; margin: 0 0 10px 0; position: relative; z-index: 1; text-shadow: 0 2px 10px rgba(0,0,0,0.2); font-weight: 700;">📅 Appointments Management</h1>
+                <p style="color: rgba(255,255,255,0.95); font-size: 1.15rem; margin: 0; position: relative; z-index: 1;">Manage all appointment bookings</p>
             </div>
 
             <?php if (isset($_SESSION['success'])): ?>
@@ -61,13 +63,72 @@ $users = $user->read();
                 </div>
             <?php endif; ?>
 
-            <div class="action-buttons">
-                <button onclick="openAppointmentModal()" class="btn btn-primary">➕ New Appointment</button>
+            <div class="action-buttons" style="margin-bottom: 25px;">
+                <button onclick="openAppointmentModal()" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; padding: 14px 32px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); transition: all 0.3s ease;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 8px;">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    New Appointment
+                </button>
             </div>
 
-            <div class="section">
-                <h2>All Appointments</h2>
-                <div class="table-container">
+            <?php
+            $stats_query = "SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed
+                FROM appointments";
+            $stats_stmt = $db->prepare($stats_query);
+            $stats_stmt->execute();
+            $appt_stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
+            ?>
+
+            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px; margin-bottom: 35px;">
+                <div class="stat-card" style="background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #3498db; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(52,152,219,0.1) 0%, rgba(52,152,219,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">📊</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Total Appointments</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #3498db; line-height: 1;"><?php echo $appt_stats['total']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">All bookings</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #fff9f0 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #f39c12; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(243,156,18,0.15) 0%, rgba(243,156,18,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">⏳</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Pending</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #f39c12; line-height: 1;"><?php echo $appt_stats['pending']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Awaiting approval</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f8f3fb 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #9b59b6; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(155,89,182,0.15) 0%, rgba(155,89,182,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">✅</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Approved</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #9b59b6; line-height: 1;"><?php echo $appt_stats['approved']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Ready for service</div>
+                </div>
+
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffffff 0%, #f0f9f4 100%); border-radius: 16px; padding: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-left: 4px solid #27ae60; position: relative; overflow: hidden; transition: all 0.3s ease;">
+                    <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, rgba(39,174,96,0.15) 0%, rgba(39,174,96,0.05) 100%); margin-bottom: 15px;">
+                        <span style="font-size: 2rem;">✔️</span>
+                    </div>
+                    <p style="font-size: 0.85rem; color: #7f8c8d; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">Completed</p>
+                    <h3 style="font-size: 2.5rem; font-weight: 700; margin: 0 0 8px 0; color: #27ae60; line-height: 1;"><?php echo $appt_stats['completed']; ?></h3>
+                    <div style="font-size: 0.85rem; color: #95a5a6; font-weight: 500;">Successfully served</div>
+                </div>
+            </div>
+
+            <div class="section" style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.08);">
+                <h2 style="color: #2d3748; font-size: 1.8rem; margin: 0 0 25px 0; display: flex; align-items: center; gap: 12px; font-weight: 700;">
+                    <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 6px; height: 35px; border-radius: 3px;"></span>
+                    All Appointments
+                </h2>
+                <div class="table-container" style="border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
                     <table id="appointmentsTable">
                         <thead>
                             <tr>
@@ -405,6 +466,102 @@ $users = $user->read();
         .form-group select:hover,
         .form-group textarea:hover {
             border-color: #95a5a6;
+        }
+
+        /* Trendy table styling */
+        .table-container table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .table-container table thead th {
+            color: white;
+            padding: 18px 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table-container table tbody tr:nth-child(even) {
+            background: #f8f9ff;
+        }
+
+        .table-container table tbody tr:hover {
+            background: linear-gradient(90deg, #f0f4ff 0%, #e8ecff 100%);
+            box-shadow: -4px 0 0 #667eea;
+        }
+
+        .table-container table tbody td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #e8e9f3;
+        }
+
+        /* Trendy badges */
+        .badge {
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-pending {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .badge-approved {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .badge-completed {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .badge-cancelled,
+        .badge-rejected {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* Modern buttons */
+        .btn-sm {
+            border-radius: 25px;
+            font-weight: 600;
+            padding: 8px 18px;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-info:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .alert {
+            border-radius: 15px;
+            padding: 18px 24px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
         }
     </style>
     <script src="<?php echo SITE_URL; ?>/assets/js/script.js"></script>
