@@ -166,7 +166,7 @@ $users = $user->read();
                                         </span>
                                     </td>
                                     <td>
-                                        <button onclick="viewAppointment(<?php echo $row['id']; ?>)" class="btn btn-sm btn-info">View</button>
+                                        <button onclick="viewAppointment(<?php echo $row['id']; ?>)" class="btn btn-sm btn-info" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">View</button>
                                         <?php if ($row['status'] == 'pending'): ?>
                                             <form action="<?php echo SITE_URL; ?>/controllers/AppointmentController.php?action=update_status" method="POST" style="display:inline;">
                                                 <input type="hidden" name="appointment_id" value="<?php echo $row['id']; ?>">

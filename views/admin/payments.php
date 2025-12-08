@@ -226,7 +226,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <button onclick="viewAppointment(<?php echo $appointment['id']; ?>)" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">👁️ View</button>
+                                            <button onclick="viewAppointment(<?php echo $appointment['id']; ?>)" class="btn btn-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">View</button>
                                             <?php if ($appointment['status'] === 'approved'): ?>
                                                 <button onclick="markAsPaid(<?php echo $appointment['id']; ?>)" class="btn btn-sm btn-success">Mark Paid</button>
                                             <?php endif; ?>

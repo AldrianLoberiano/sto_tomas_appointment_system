@@ -174,7 +174,7 @@ if ($hour < 12) {
                                             </span>
                                         </td>
                                         <td>
-                                            <button onclick="viewAppointment(<?php echo $row['id']; ?>)" class="btn btn-sm btn-info" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">👁️ View</button>
+                                            <button onclick="viewAppointment(<?php echo $row['id']; ?>)" class="btn btn-sm btn-info" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">View</button>
                                         </td>
                                     </tr>
                                 <?php endwhile; ?>
