@@ -201,9 +201,6 @@ require_once __DIR__ . '/../config/config.php';
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section footer-about">
-                    <div class="footer-logo">
-                        <img src="<?php echo SITE_URL; ?>/assets/images/logo.png" alt="Logo" class="footer-logo-img">
-                    </div>
                     <h3>🏘️ Barangay Sto. Tomas</h3>
                     <p>Serving the community with dedication and integrity since 1950.</p>
                     <div class="footer-contact">
