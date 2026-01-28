@@ -188,9 +188,11 @@ To extend the system:
 3. Add views in `views/` directory
 4. Update database schema as needed
 
-## License
+## Copyright Notice
 
-This project is open-source and available for educational purposes.
+Copyright © 2026 Aldrian Loberiano.  
+This project is intended strictly for personal use.  
+Any unauthorized commercial use, distribution, or copying of the code or materials in this repository is prohibited and may constitute copyright infringement.
 
 ## Support
 
